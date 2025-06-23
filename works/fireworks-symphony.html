@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fireworks Symphony - ArTube</title>
+    <link rel="stylesheet" href="../styles/work.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+</head>
+<body>
+    <nav class="work-nav">
+        <a href="../index.html" class="back-btn">Back to Gallery</a>
+        <h1>Fireworks Symphony</h1>
+        <div class="nav-controls">
+            <button id="resetBtn">Reset</button>
+            <button id="pauseBtn">Pause</button>
+        </div>
+    </nav>
+
+    <main class="work-container">
+        <div id="sketch-container"></div>
+        
+        <div class="work-info">
+            <div class="description">
+                <h2>About this work</h2>
+                <p>連続的な花火のシミュレーション。色とりどりの光の軌跡が夜空を彩ります。物理演算による美しい爆発パターンと、重力による自然な軌道をお楽しみください。</p>
+            </div>
+            
+            <div class="controls">
+                <h3>Controls</h3>
+                <ul>
+                    <li><strong>マウスクリック:</strong> 指定位置に花火を打ち上げ</li>
+                    <li><strong>スペースキー:</strong> 連続花火発射</li>
+                    <li><strong>R:</strong> 全てクリア</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let isPaused = false;
+        
+        function setup() {
+            const canvas = createCanvas(windowWidth * 0.7, windowHeight * 0.8);
+            canvas.parent('sketch-container');
+            
+            // 外部スクリプトをロード
+            const script = document.createElement('script');
+            script.src = '../scripts/sketches/particles/fireworks-symphony.js';
+            document.head.appendChild(script);
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth * 0.7, windowHeight * 0.8);
+        }
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            if (typeof fireworks !== 'undefined') {
+                fireworks = [];
+                explosions = [];
+                background(0);
+            }
+        });
+
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            isPaused = !isPaused;
+            if (isPaused) {
+                noLoop();
+            } else {
+                loop();
+            }
+            document.getElementById('pauseBtn').textContent = isPaused ? 'Play' : 'Pause';
+        });
+    </script>
+</body>
+</html>

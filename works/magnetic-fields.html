@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magnetic Fields - ArTube</title>
+    <link rel="stylesheet" href="../styles/work.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+</head>
+<body>
+    <nav class="work-nav">
+        <a href="../index.html" class="back-btn">Back to Gallery</a>
+        <h1>Magnetic Fields</h1>
+        <div class="nav-controls">
+            <button id="resetBtn">Reset</button>
+            <button id="toggleFieldBtn">🔍 Toggle Field</button>
+        </div>
+    </nav>
+
+    <main class="work-container">
+        <div id="sketch-container"></div>
+        
+        <div class="work-info">
+            <div class="description">
+                <h2>About this work</h2>
+                <p>磁場の可視化シミュレーション。磁極を配置して、磁力線と荷電粒子の動きを観察できます。</p>
+                <p>N極（赤）とS極（青）の相互作用により形成される磁場のパターンを、リアルタイムで確認できます。</p>
+            </div>
+            
+            <div class="controls">
+                <h3>Controls</h3>
+                <ul>
+                    <li><strong>左クリック:</strong> N極を配置</li>
+                    <li><strong>右クリック:</strong> S極を配置</li>
+                    <li><strong>F:</strong> 磁力線の表示/非表示</li>
+                    <li><strong>P:</strong> 粒子の表示/非表示</li>
+                    <li><strong>C:</strong> すべての磁極をクリア</li>
+                    <li><strong>R:</strong> リセット</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let sketch;
+
+        function setup() {
+            const canvas = createCanvas(windowWidth * 0.7, windowHeight * 0.8);
+            canvas.parent('sketch-container');
+            
+            // 外部スクリプトをロード
+            const script = document.createElement('script');
+            script.src = '../scripts/sketches/particles/magnetic-fields.js';
+            script.onload = function() {
+                sketch = new MagneticFields();
+                sketch.init();
+            };
+            document.head.appendChild(script);
+            
+            // Prevent right-click context menu
+            canvas.canvas.oncontextmenu = function(e) {
+                e.preventDefault();
+                return false;
+            };
+        }
+
+        function draw() {
+            if (sketch) {
+                sketch.update();
+                sketch.draw();
+            }
+        }
+
+        function mousePressed() {
+            if (sketch) {
+                sketch.mousePressed();
+            }
+            return false;
+        }
+
+        function keyPressed() {
+            if (sketch) {
+                sketch.keyPressed();
+            }
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth * 0.7, windowHeight * 0.8);
+        }
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            if (sketch) {
+                sketch.poles = [];
+                sketch.particles = [];
+                sketch.init();
+            }
+        });
+
+        document.getElementById('toggleFieldBtn').addEventListener('click', () => {
+            if (sketch) {
+                sketch.showFieldLines = !sketch.showFieldLines;
+            }
+        });
+    </script>
+</body>
+</html>

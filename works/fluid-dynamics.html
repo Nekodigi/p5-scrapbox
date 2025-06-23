@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fluid Dynamics - ArTube</title>
+    <link rel="stylesheet" href="../styles/work.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+</head>
+<body>
+    <nav class="work-nav">
+        <a href="../index.html" class="back-btn">Back to Gallery</a>
+        <h1>Stable Fluid Simulation</h1>
+        <div class="nav-controls">
+            <button id="resetBtn">Reset</button>
+            <button id="pauseBtn">Pause</button>
+        </div>
+    </nav>
+
+    <main class="work-container">
+        <div id="sketch-container"></div>
+        
+        <div class="work-info">
+            <div class="description">
+                <h2>About this work</h2>
+                <p>Jos Stam の「Stable Fluids」アルゴリズムを WebGL シェーダーで実装した流体シミュレーション。</p>
+                <p>非圧縮性ナビエ・ストークス方程式を解くことで、リアルな流体の動きを再現しています。</p>
+                <p>マウスやタッチで流体をかき混ぜ、様々な色の染料を追加して美しい渦巻きパターンを作成できます。</p>
+            </div>
+            
+            <div class="controls">
+                <h3>Controls</h3>
+                <ul>
+                    <li><strong>ドラッグ:</strong> 流体をかき混ぜる</li>
+                    <li><strong>クリック:</strong> 染料を追加</li>
+                    <li><strong>1-3:</strong> 表示モード切り替え</li>
+                    <li><strong>C:</strong> 色をリセット</li>
+                    <li><strong>V:</strong> 速度場をリセット</li>
+                    <li><strong>Space:</strong> 一時停止/再開</li>
+                </ul>
+                
+                <h3>Parameters</h3>
+                <div class="parameter-controls">
+                    <label>
+                        Viscosity: <span id="viscosityValue">0.0005</span>
+                        <input type="range" id="viscositySlider" min="0" max="0.01" step="0.0001" value="0.0005">
+                    </label>
+                    <label>
+                        Vorticity: <span id="vorticityValue">20</span>
+                        <input type="range" id="vorticitySlider" min="0" max="50" step="1" value="20">
+                    </label>
+                    <label>
+                        Dissipation: <span id="dissipationValue">0.995</span>
+                        <input type="range" id="dissipationSlider" min="0.9" max="1.0" step="0.001" value="0.995">
+                    </label>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <style>
+        .parameter-controls {
+            margin-top: 1rem;
+        }
+        .parameter-controls label {
+            display: block;
+            margin: 0.5rem 0;
+            font-size: 0.9rem;
+        }
+        .parameter-controls input[type="range"] {
+            width: 100%;
+            margin-top: 0.25rem;
+        }
+        .parameter-controls span {
+            font-weight: bold;
+            color: #00ff88;
+        }
+    </style>
+
+    <script>
+        // Shader variables
+        let advectShader, divergenceShader, pressureShader, gradientShader;
+        let forceShader, splatShader, displayShader, boundaryShader;
+        let vorticityShader, vorticityMagShader;
+        
+        // Framebuffers
+        let velocity, velocityTemp;
+        let density, densityTemp;
+        let pressure, pressureTemp;
+        let divergence, vorticity;
+        
+        // Parameters
+        let gridSize = 256;
+        let viscosity = 0.0005;
+        let vorticityStrength = 20;
+        let dissipation = 0.995;
+        let pressureIterations = 20;
+        let displayMode = 0;
+        let isPaused = false;
+        let dt = 0.016;
+        
+        // Mouse tracking
+        let mouseForce = { x: 0, y: 0 };
+        let lastMouse = { x: 0, y: 0 };
+        let colorIndex = 0;
+        const colors = [
+            [1.0, 0.0, 0.0],    // Red
+            [0.0, 1.0, 0.0],    // Green
+            [0.0, 0.0, 1.0],    // Blue
+            [1.0, 1.0, 0.0],    // Yellow
+            [1.0, 0.0, 1.0],    // Magenta
+            [0.0, 1.0, 1.0]     // Cyan
+        ];
+
+        function setup() {
+            const canvas = createCanvas(windowWidth * 0.7, windowHeight * 0.8, WEBGL);
+            canvas.parent('sketch-container');
+            
+            // Load shaders
+            const script = document.createElement('script');
+            script.src = '../scripts/sketches/physics/fluid-dynamics.js';
+            script.onload = function() {
+                initializeShaders();
+                initializeFramebuffers();
+                resetSimulation();
+            };
+            document.head.appendChild(script);
+        }
+
+        function initializeShaders() {
+            // Create all shaders
+            advectShader = createShader(vertexShader, advectionShader);
+            divergenceShader = createShader(vertexShader, divergenceShaderCode);
+            pressureShader = createShader(vertexShader, pressureShaderCode);
+            gradientShader = createShader(vertexShader, gradientShaderCode);
+            forceShader = createShader(vertexShader, addForceShaderCode);
+            splatShader = createShader(vertexShader, splatShaderCode);
+            displayShader = createShader(vertexShader, displayShaderCode);
+            boundaryShader = createShader(vertexShader, boundaryShaderCode);
+            vorticityShader = createShader(vertexShader, vorticityShaderCode);
+            vorticityMagShader = createShader(vertexShader, vorticityMagShaderCode);
+        }
+
+        function initializeFramebuffers() {
+            // Create framebuffers for simulation
+            const options = { width: gridSize, height: gridSize, format: FLOAT };
+            
+            velocity = createFramebuffer(options);
+            velocityTemp = createFramebuffer(options);
+            density = createFramebuffer(options);
+            densityTemp = createFramebuffer(options);
+            pressure = createFramebuffer(options);
+            pressureTemp = createFramebuffer(options);
+            divergence = createFramebuffer(options);
+            vorticity = createFramebuffer(options);
+        }
+
+        function resetSimulation() {
+            // Clear all framebuffers
+            [velocity, velocityTemp, density, densityTemp, pressure, pressureTemp, divergence, vorticity].forEach(fb => {
+                fb.begin();
+                clear();
+                fb.end();
+            });
+            
+            // Add initial disturbance
+            density.begin();
+            push();
+            resetShader();
+            noStroke();
+            for (let i = 0; i < 3; i++) {
+                fill(colors[i][0] * 255, colors[i][1] * 255, colors[i][2] * 255);
+                let x = random(-width/2, width/2);
+                let y = random(-height/2, height/2);
+                ellipse(x, y, 50);
+            }
+            pop();
+            density.end();
+        }
+
+        function draw() {
+            if (!advectShader) {
+                background(0);
+                fill(255);
+                textAlign(CENTER, CENTER);
+                text("Loading shaders...", 0, 0);
+                return;
+            }
+            
+            // Calculate mouse force
+            if (mouseIsPressed) {
+                mouseForce.x = (mouseX - lastMouse.x) * 1.0;
+                mouseForce.y = (mouseY - lastMouse.y) * 1.0;
+            } else {
+                mouseForce.x *= 0.9;
+                mouseForce.y *= 0.9;
+            }
+            
+            if (!isPaused) {
+                // Fluid simulation steps
+                
+                // 1. Add forces from mouse
+                if (mouseIsPressed && (abs(mouseForce.x) > 0.01 || abs(mouseForce.y) > 0.01)) {
+                    velocityTemp.begin();
+                    shader(forceShader);
+                    forceShader.setUniform('u_source', velocity);
+                    forceShader.setUniform('u_force', [mouseForce.x, -mouseForce.y]);
+                    forceShader.setUniform('u_center', [mouseX / width, 1.0 - mouseY / height]);
+                    forceShader.setUniform('u_radius', 0.08);
+                    rect(-width/2, -height/2, width, height);
+                    velocityTemp.end();
+                    [velocity, velocityTemp] = swapBuffers(velocity, velocityTemp);
+                    
+                    // Add dye
+                    densityTemp.begin();
+                    shader(splatShader);
+                    splatShader.setUniform('u_source', density);
+                    splatShader.setUniform('u_color', colors[colorIndex]);
+                    splatShader.setUniform('u_center', [mouseX / width, 1.0 - mouseY / height]);
+                    splatShader.setUniform('u_radius', 0.05);
+                    rect(-width/2, -height/2, width, height);
+                    densityTemp.end();
+                    [density, densityTemp] = swapBuffers(density, densityTemp);
+                }
+                
+                // 2. Advect velocity
+                velocityTemp.begin();
+                shader(advectShader);
+                advectShader.setUniform('u_velocity', velocity);
+                advectShader.setUniform('u_source', velocity);
+                advectShader.setUniform('u_texelSize', [1.0 / gridSize, 1.0 / gridSize]);
+                advectShader.setUniform('u_dt', dt * 100.0);
+                advectShader.setUniform('u_dissipation', 1.0 - viscosity);
+                rect(-width/2, -height/2, width, height);
+                velocityTemp.end();
+                [velocity, velocityTemp] = swapBuffers(velocity, velocityTemp);
+                
+                // 3. Add vorticity confinement
+                if (vorticityStrength > 0) {
+                    // Calculate vorticity
+                    vorticity.begin();
+                    shader(vorticityMagShader);
+                    vorticityMagShader.setUniform('u_velocity', velocity);
+                    vorticityMagShader.setUniform('u_texelSize', [1.0 / gridSize, 1.0 / gridSize]);
+                    rect(-width/2, -height/2, width, height);
+                    vorticity.end();
+                    
+                    // Apply vorticity force
+                    velocityTemp.begin();
+                    shader(vorticityShader);
+                    vorticityShader.setUniform('u_velocity', velocity);
+                    vorticityShader.setUniform('u_vorticity', vorticity);
+                    vorticityShader.setUniform('u_texelSize', [1.0 / gridSize, 1.0 / gridSize]);
+                    vorticityShader.setUniform('u_curl', vorticityStrength);
+                    vorticityShader.setUniform('u_dt', dt);
+                    rect(-width/2, -height/2, width, height);
+                    velocityTemp.end();
+                    [velocity, velocityTemp] = swapBuffers(velocity, velocityTemp);
+                }
+                
+                // 4. Calculate divergence
+                divergence.begin();
+                shader(divergenceShader);
+                divergenceShader.setUniform('u_velocity', velocity);
+                divergenceShader.setUniform('u_texelSize', [1.0 / gridSize, 1.0 / gridSize]);
+                rect(-width/2, -height/2, width, height);
+                divergence.end();
+                
+                // 5. Pressure solve (Jacobi iteration)
+                pressure.begin();
+                clear();
+                pressure.end();
+                
+                for (let i = 0; i < pressureIterations; i++) {
+                    pressureTemp.begin();
+                    shader(pressureShader);
+                    pressureShader.setUniform('u_pressure', pressure);
+                    pressureShader.setUniform('u_divergence', divergence);
+                    pressureShader.setUniform('u_texelSize', [1.0 / gridSize, 1.0 / gridSize]);
+                    pressureShader.setUniform('u_alpha', -1.0);
+                    pressureShader.setUniform('u_beta', 0.25);
+                    rect(-width/2, -height/2, width, height);
+                    pressureTemp.end();
+                    [pressure, pressureTemp] = swapBuffers(pressure, pressureTemp);
+                }
+                
+                // 6. Gradient subtraction
+                velocityTemp.begin();
+                shader(gradientShader);
+                gradientShader.setUniform('u_pressure', pressure);
+                gradientShader.setUniform('u_velocity', velocity);
+                gradientShader.setUniform('u_texelSize', [1.0 / gridSize, 1.0 / gridSize]);
+                rect(-width/2, -height/2, width, height);
+                velocityTemp.end();
+                [velocity, velocityTemp] = swapBuffers(velocity, velocityTemp);
+                
+                // 7. Advect density
+                densityTemp.begin();
+                shader(advectShader);
+                advectShader.setUniform('u_velocity', velocity);
+                advectShader.setUniform('u_source', density);
+                advectShader.setUniform('u_texelSize', [1.0 / gridSize, 1.0 / gridSize]);
+                advectShader.setUniform('u_dt', dt * 100.0);
+                advectShader.setUniform('u_dissipation', dissipation);
+                rect(-width/2, -height/2, width, height);
+                densityTemp.end();
+                [density, densityTemp] = swapBuffers(density, densityTemp);
+            }
+            
+            // Display result
+            shader(displayShader);
+            displayShader.setUniform('u_density', density);
+            displayShader.setUniform('u_velocity', velocity);
+            displayShader.setUniform('u_displayMode', displayMode);
+            rect(-width/2, -height/2, width, height);
+            
+            // Update mouse position
+            lastMouse.x = mouseX;
+            lastMouse.y = mouseY;
+            
+            // Display info
+            displayInfo();
+        }
+
+        function swapBuffers(a, b) {
+            return [b, a];
+        }
+
+        function displayInfo() {
+            push();
+            resetShader();
+            fill(255, 200);
+            textAlign(LEFT, TOP);
+            text(`FPS: ${frameRate().toFixed(0)}`, -width/2 + 20, -height/2 + 20);
+            text(`Display: ${['Density', 'Velocity Magnitude', 'Velocity Direction'][displayMode]}`, -width/2 + 20, -height/2 + 40);
+            pop();
+        }
+
+        function mousePressed() {
+            colorIndex = (colorIndex + 1) % colors.length;
+        }
+
+        function keyPressed() {
+            if (key === ' ') {
+                isPaused = !isPaused;
+            } else if (key === 'c' || key === 'C') {
+                density.begin();
+                clear();
+                density.end();
+            } else if (key === 'v' || key === 'V') {
+                velocity.begin();
+                clear();
+                velocity.end();
+            } else if (key >= '1' && key <= '3') {
+                displayMode = parseInt(key) - 1;
+            }
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth * 0.7, windowHeight * 0.8);
+        }
+
+        // UI event listeners
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            resetSimulation();
+        });
+
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            isPaused = !isPaused;
+            document.getElementById('pauseBtn').textContent = isPaused ? 'Play' : 'Pause';
+        });
+
+        document.getElementById('viscositySlider').addEventListener('input', (e) => {
+            viscosity = parseFloat(e.target.value);
+            document.getElementById('viscosityValue').textContent = viscosity.toFixed(4);
+        });
+
+        document.getElementById('vorticitySlider').addEventListener('input', (e) => {
+            vorticityStrength = parseFloat(e.target.value);
+            document.getElementById('vorticityValue').textContent = vorticityStrength;
+        });
+
+        document.getElementById('dissipationSlider').addEventListener('input', (e) => {
+            dissipation = parseFloat(e.target.value);
+            document.getElementById('dissipationValue').textContent = dissipation.toFixed(3);
+        });
+    </script>
+</body>
+</html>

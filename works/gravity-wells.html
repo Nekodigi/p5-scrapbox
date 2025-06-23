@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gravity Wells - ArTube</title>
+    <link rel="stylesheet" href="../styles/work.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <script src="../scripts/sketches/particles/gravity-wells.js"></script>
+</head>
+<body>
+    <nav class="work-nav">
+        <a href="../index.html" class="back-btn">Back to Gallery</a>
+        <h1>Gravity Wells</h1>
+        <div class="nav-controls">
+            <button id="resetBtn">Reset</button>
+            <button id="pauseBtn">Pause</button>
+        </div>
+    </nav>
+
+    <main class="work-container">
+        <div id="sketch-container"></div>
+        
+        <div class="work-info">
+            <div class="description">
+                <h2>About this work</h2>
+                <p>物理的に正確な重力シミュレーションとアーティスティックな視覚効果を融合させた作品です。粒子は重力井戸の影響を受けて複雑な軌道を描き、エネルギーと角運動量が保存される美しいダンスを展開します。</p>
+                <p>色彩は粒子の速度、エネルギー、または重力井戸からの距離に基づいて変化し、空間の歪みを可視化した重力場の表現が幻想的な雰囲気を演出します。</p>
+            </div>
+            
+            <div class="controls">
+                <h3>Controls</h3>
+                <ul>
+                    <li><strong>[Space]:</strong> システムをリセット</li>
+                    <li><strong>[左クリック]:</strong> 引力井戸を追加</li>
+                    <li><strong>[右クリック]:</strong> 斥力井戸を追加</li>
+                    <li><strong>[F]:</strong> 重力場の表示切替</li>
+                    <li><strong>[O]:</strong> 軌道予測の表示切替</li>
+                    <li><strong>[C]:</strong> カラーモード切替（速度/エネルギー/距離）</li>
+                    <li><strong>[←→]:</strong> 重力場の強さ調整</li>
+                    <li><strong>[↑↓]:</strong> 時間の流れ調整</li>
+                    <li><strong>[R]:</strong> 最後の重力井戸を削除</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            if (typeof particleSystem !== 'undefined') {
+                particleSystem.initialize(500);
+            }
+        });
+
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            if (typeof noLoop !== 'undefined') {
+                if (isLooping()) {
+                    noLoop();
+                    document.getElementById('pauseBtn').textContent = 'Play';
+                } else {
+                    loop();
+                    document.getElementById('pauseBtn').textContent = 'Pause';
+                }
+            }
+        });
+        
+        // 右クリックのコンテキストメニューを無効化
+        document.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            return false;
+        });
+    </script>
+</body>
+</html>

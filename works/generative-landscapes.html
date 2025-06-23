@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generative Landscapes - ArTube</title>
+    <link rel="stylesheet" href="../styles/work.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+</head>
+<body>
+    <nav class="work-nav">
+        <a href="../index.html" class="back-btn">Back to Gallery</a>
+        <h1>Generative Landscapes</h1>
+        <div class="nav-controls">
+            <button id="resetBtn">Reset</button>
+            <button id="pauseBtn">Pause</button>
+        </div>
+    </nav>
+
+    <main class="work-container">
+        <div id="sketch-container"></div>
+        
+        <div class="work-info">
+            <div class="description">
+                <h2>About this work</h2>
+                <p>アルゴリズムによって生成される無限の風景。パーリンノイズを使用して山、雲、霧などの自然な形状を動的に生成し、美しい風景を作り出します。時間と共に変化する色彩と形状で、見るたびに異なる表情を見せます。</p>
+            </div>
+            
+            <div class="controls">
+                <h3>Controls</h3>
+                <ul>
+                    <li><strong>マウスクリック:</strong> 新しい風景を生成</li>
+                    <li><strong>スペースキー:</strong> アニメーション切替</li>
+                    <li><strong>R:</strong> リセット</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <script src="../scripts/sketches/generative/generative-landscapes.js"></script>
+    <script>
+        let isPaused = false;
+        
+        // Override the setup function to work with the container
+        let originalSetup = setup;
+        setup = function() {
+            const canvas = createCanvas(windowWidth * 0.7, windowHeight * 0.8);
+            canvas.parent('sketch-container');
+            
+            // Call the original setup if it exists
+            if (typeof originalSetup === 'function') {
+                originalSetup();
+            }
+        }
+
+        // Override windowResized
+        let originalWindowResized = windowResized;
+        windowResized = function() {
+            resizeCanvas(windowWidth * 0.7, windowHeight * 0.8);
+            if (typeof originalWindowResized === 'function') {
+                originalWindowResized();
+            }
+        }
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            // Reset the landscape
+            if (typeof seedValue !== 'undefined') {
+                time = 0;
+                timeOfDay = 0.5;
+                seedValue = random(10000);
+                noiseSeed(seedValue);
+                if (typeof initializeLandscape === 'function') initializeLandscape();
+                if (typeof generateStars === 'function') generateStars();
+            }
+        });
+
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            isPaused = !isPaused;
+            if (isPaused) {
+                noLoop();
+            } else {
+                loop();
+            }
+            document.getElementById('pauseBtn').textContent = isPaused ? 'Play' : 'Pause';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Spectrum - ArTube</title>
+    <link rel="stylesheet" href="../styles/work.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/addons/p5.sound.min.js"></script>
+</head>
+<body>
+    <nav class="work-nav">
+        <a href="../index.html" class="back-btn">Back to Gallery</a>
+        <h1>Audio Spectrum</h1>
+        <div class="nav-controls">
+            <button id="startBtn">Start Microphone</button>
+            <button id="pauseBtn">Pause</button>
+        </div>
+    </nav>
+
+    <main class="work-container">
+        <div id="sketch-container"></div>
+        
+        <div class="work-info">
+            <div class="description">
+                <h2>About this work</h2>
+                <p>高精度な周波数スペクトラム解析による音声ビジュアライザー。リアルタイムでマイク入力を周波数成分に分解し、美しいスペクトラムバーとして表示します。</p>
+                <p>低音域から高音域まで色分けされたバーが音楽に合わせてダンスし、ピーク検出とリフレクション効果で臨場感あふれる視覚体験を提供します。</p>
+            </div>
+            
+            <div class="controls">
+                <h3>Features</h3>
+                <ul>
+                    <li><strong>Real-time FFT:</strong> 高速フーリエ変換による周波数解析</li>
+                    <li><strong>Peak Detection:</strong> ピーク値の検出と表示</li>
+                    <li><strong>Reflection Effect:</strong> 美しいリフレクション効果</li>
+                    <li><strong>Simulation Mode:</strong> マイクなしでもデモ表示</li>
+                </ul>
+                
+                <h3>Controls</h3>
+                <ul>
+                    <li><strong>SPACE:</strong> ライブ/シミュレーション切替</li>
+                    <li><strong>+/-:</strong> スムージング調整</li>
+                    <li><strong>↑↓:</strong> バンド数調整</li>
+                    <li><strong>Click START:</strong> マイクを開始</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <script src="../scripts/sketches/waves/audio-spectrum.js"></script>
+    <script>
+        // キャンバスを指定したコンテナに配置
+        let originalSetup = setup;
+        setup = function() {
+            const canvas = createCanvas(windowWidth * 0.7, windowHeight * 0.8);
+            canvas.parent('sketch-container');
+            
+            // 元のセットアップを実行（キャンバス作成以外）
+            colorMode(HSB, 360, 100, 100);
+            
+            // バーの初期化
+            initializeBars();
+            
+            // マイクとFFTの初期化
+            setupAudio();
+            
+            background(0);
+        }
+
+        // ウィンドウリサイズ対応
+        let originalWindowResized = windowResized;
+        windowResized = function() {
+            resizeCanvas(windowWidth * 0.7, windowHeight * 0.8);
+        }
+
+        let isPaused = false;
+
+        // ボタンイベント
+        document.getElementById('startBtn').addEventListener('click', async () => {
+            if (isListening) {
+                stopMicrophone();
+                document.getElementById('startBtn').textContent = 'Start Microphone';
+            } else {
+                await startMicrophone();
+                if (isListening) {
+                    document.getElementById('startBtn').textContent = 'Stop Microphone';
+                }
+            }
+        });
+
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            isPaused = !isPaused;
+            if (isPaused) {
+                noLoop();
+            } else {
+                loop();
+            }
+            document.getElementById('pauseBtn').textContent = isPaused ? 'Play' : 'Pause';
+        });
+    </script>
+</body>
+</html>

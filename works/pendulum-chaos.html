@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pendulum Chaos - ArTube</title>
+    <link rel="stylesheet" href="../styles/work.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+</head>
+<body>
+    <nav class="work-nav">
+        <a href="../index.html" class="back-btn">Back to Gallery</a>
+        <h1>Pendulum Chaos</h1>
+        <div class="nav-controls">
+            <button id="resetBtn">Reset</button>
+            <button id="pauseBtn">Pause</button>
+        </div>
+    </nav>
+
+    <main class="work-container">
+        <div id="sketch-container"></div>
+        
+        <div class="work-info">
+            <div class="description">
+                <h2>About this work</h2>
+                <p>二重振り子のカオス運動。予測不可能な美しい軌跡を描画します。わずかな初期条件の違いが、時間とともに大きく異なる軌道を生み出すカオス理論の本質を体感できます。</p>
+            </div>
+            
+            <div class="controls">
+                <h3>Controls</h3>
+                <ul>
+                    <li><strong>+/-:</strong> 振り子数調整</li>
+                    <li><strong>G/H:</strong> 重力調整</li>
+                    <li><strong>D/F:</strong> ダンピング調整</li>
+                    <li><strong>T:</strong> 軌跡表示切替</li>
+                    <li><strong>E:</strong> エネルギーグラフ切替</li>
+                    <li><strong>V (長押し):</strong> 速度ベクトル表示</li>
+                    <li><strong>スペース:</strong> カオステスト</li>
+                    <li><strong>マウスクリック:</strong> 新しい振り子追加</li>
+                    <li><strong>R:</strong> リセット</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let isPaused = false;
+        
+        function setup() {
+            const canvas = createCanvas(windowWidth * 0.7, windowHeight * 0.8);
+            canvas.parent('sketch-container');
+            
+            // 外部スクリプトをロード
+            const script = document.createElement('script');
+            script.src = '../scripts/sketches/physics/pendulum-chaos.js';
+            document.head.appendChild(script);
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth * 0.7, windowHeight * 0.8);
+        }
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            if (typeof initializePendulums !== 'undefined') {
+                initializePendulums();
+            }
+        });
+
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            isPaused = !isPaused;
+            if (isPaused) {
+                noLoop();
+            } else {
+                loop();
+            }
+            document.getElementById('pauseBtn').textContent = isPaused ? 'Play' : 'Pause';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Particle Cloud - ArTube</title>
+    <link rel="stylesheet" href="../styles/work.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+</head>
+<body>
+    <nav class="work-nav">
+        <a href="../index.html" class="back-btn">Back to Gallery</a>
+        <h1>3D Particle Cloud</h1>
+        <div class="nav-controls">
+            <button id="resetBtn">Reset</button>
+            <button id="attractorBtn">🌟 Attractor</button>
+            <button id="pauseBtn">Pause</button>
+        </div>
+    </nav>
+
+    <main class="work-container">
+        <div id="sketch-container"></div>
+        
+        <div class="work-info">
+            <div class="description">
+                <h2>About this work</h2>
+                <p>3次元空間を舞う粒子群の美しい動きを観察できます。各粒子はノイズベースの力場と重力、アトラクターの影響を受けて複雑な軌道を描きます。</p>
+                <p>粒子間の距離に基づく接続線や、カラフルな軌跡により、3D空間での粒子の相互作用が視覚化されます。</p>
+            </div>
+            
+            <div class="controls">
+                <h3>Controls</h3>
+                <ul>
+                    <li><strong>T:</strong> 軌跡の表示/非表示</li>
+                    <li><strong>C:</strong> カラーモードを変更</li>
+                    <li><strong>A:</strong> アトラクターのON/OFF</li>
+                    <li><strong>R:</strong> 自動回転のON/OFF</li>
+                    <li><strong>+/-:</strong> 粒子数を増減</li>
+                    <li><strong>マウスドラッグ:</strong> 手動回転</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <script src="../scripts/sketches/3d/3d-particle-cloud.js"></script>
+    <script>
+        let particleCloud3D;
+        let isPaused = false;
+
+        // Override the setup function to work with the container
+        let originalSetup = setup;
+        setup = function() {
+            const canvas = createCanvas(windowWidth * 0.7, windowHeight * 0.8, WEBGL);
+            canvas.parent('sketch-container');
+            
+            // Initialize the 3D particle cloud
+            particleCloud3D = new ParticleCloud3D();
+        }
+
+        // Override the draw function
+        let originalDraw = draw;
+        draw = function() {
+            if (particleCloud3D && !isPaused) {
+                particleCloud3D.update();
+                particleCloud3D.draw();
+            }
+        }
+
+        // Override key pressed
+        let originalKeyPressed = keyPressed;
+        keyPressed = function() {
+            if (particleCloud3D) {
+                particleCloud3D.keyPressed();
+            }
+        }
+
+        // Override mouse dragged
+        let originalMouseDragged = mouseDragged;
+        mouseDragged = function() {
+            if (particleCloud3D) {
+                particleCloud3D.mouseDragged();
+            }
+        }
+
+        // Override window resized
+        let originalWindowResized = windowResized;
+        windowResized = function() {
+            resizeCanvas(windowWidth * 0.7, windowHeight * 0.8);
+        }
+
+        // Wait for DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                if (particleCloud3D) {
+                    particleCloud3D.initializeParticles();
+                }
+            });
+
+            document.getElementById('attractorBtn').addEventListener('click', () => {
+                if (particleCloud3D) {
+                    particleCloud3D.attractor = particleCloud3D.attractor ? null : createVector(0, 0, 0);
+                }
+            });
+
+            document.getElementById('pauseBtn').addEventListener('click', () => {
+                isPaused = !isPaused;
+                document.getElementById('pauseBtn').textContent = isPaused ? 'Play' : 'Pause';
+            });
+        });
+    </script>
+</body>
+</html>

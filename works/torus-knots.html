@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Torus Knots - ArTube</title>
+    <link rel="stylesheet" href="../styles/work.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+</head>
+<body>
+    <nav class="work-nav">
+        <a href="../index.html" class="back-btn">Back to Gallery</a>
+        <h1>Torus Knots</h1>
+        <div class="nav-controls">
+            <button id="resetBtn">Reset</button>
+            <button id="nextKnotBtn">Next Knot</button>
+        </div>
+    </nav>
+
+    <main class="work-container">
+        <div id="sketch-container"></div>
+        
+        <div class="work-info">
+            <div class="description">
+                <h2>About this work</h2>
+                <p>数学的に定義されるトーラス結び目の3D可視化。異なるパラメータ(p,q)により、トレフォイル結び、シンクフォイル結び、8の字結びなど、様々な美しい結び目構造を表現します。</p>
+                <p>3つの表示モード（ワイヤーフレーム、チューブ、パーティクル）で、結び目の幾何学的特性を多角的に観察できます。</p>
+            </div>
+            
+            <div class="controls">
+                <h3>Controls</h3>
+                <ul>
+                    <li><strong>N/P:</strong> 次/前の結び目</li>
+                    <li><strong>M:</strong> 表示モードを変更</li>
+                    <li><strong>R:</strong> 自動回転のON/OFF</li>
+                    <li><strong>+/-:</strong> スケールを調整</li>
+                    <li><strong>マウスドラッグ:</strong> 手動回転</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <script src="../scripts/sketches/3d/torus-knots.js"></script>
+    <script>
+        // Event listeners for buttons
+        window.addEventListener('load', () => {
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                if (typeof torusKnotViz !== 'undefined' && torusKnotViz) {
+                    torusKnotViz.resetView();
+                }
+            });
+
+            document.getElementById('nextKnotBtn').addEventListener('click', () => {
+                if (typeof torusKnotViz !== 'undefined' && torusKnotViz) {
+                    torusKnotViz.nextKnot();
+                }
+            });
+        });
+        
+        // Prevent context menu on right click
+        document.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            return false;
+        });
+    </script>
+</body>
+</html>

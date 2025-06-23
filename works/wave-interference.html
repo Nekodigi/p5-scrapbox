@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wave Interference - ArTube</title>
+    <link rel="stylesheet" href="../styles/work.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+</head>
+<body>
+    <nav class="work-nav">
+        <a href="../index.html" class="back-btn">Back to Gallery</a>
+        <h1>Wave Interference</h1>
+        <div class="nav-controls">
+            <button id="resetBtn">Reset</button>
+            <button id="pauseBtn">Pause</button>
+        </div>
+    </nav>
+
+    <main class="work-container">
+        <div id="sketch-container"></div>
+        
+        <div class="work-info">
+            <div class="description">
+                <h2>About this work</h2>
+                <p>波の干渉パターンの可視化。複数の波源から生成される美しい干渉縞を観察できます。クリックで新しい波源を追加し、波の重ね合わせによる複雑なパターンを楽しめます。</p>
+            </div>
+            
+            <div class="controls">
+                <h3>Controls</h3>
+                <ul>
+                    <li><strong>Click:</strong> 波源追加</li>
+                    <li><strong>+/-:</strong> 波長調整</li>
+                    <li><strong>R:</strong> リセット</li>
+                    <li><strong>C:</strong> 波源クリア</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Wave Interference
+        let waveSpeed = 0.05;
+        let waveLength = 50;
+        let sources = [];
+        let gridSize = 5;
+        let time = 0;
+        let isPaused = false;
+
+        function setup() {
+            const canvas = createCanvas(windowWidth * 0.7, windowHeight * 0.8);
+            canvas.parent('sketch-container');
+            
+            // Initial wave sources
+            sources.push({x: width * 0.3, y: height * 0.5});
+            sources.push({x: width * 0.7, y: height * 0.5});
+        }
+
+        function draw() {
+            if (!isPaused) {
+                background(0);
+                
+                time += waveSpeed;
+                
+                // Calculate interference on grid
+                for (let x = 0; x < width; x += gridSize) {
+                    for (let y = 0; y < height; y += gridSize) {
+                        let amplitude = 0;
+                        
+                        // Sum waves from all sources
+                        for (let source of sources) {
+                            let distance = dist(x, y, source.x, source.y);
+                            let wave = sin((distance / waveLength - time) * TWO_PI);
+                            amplitude += wave;
+                        }
+                        
+                        // Convert amplitude to color
+                        amplitude = amplitude / sources.length;
+                        let brightness = map(amplitude, -1, 1, 0, 255);
+                        
+                        noStroke();
+                        fill(brightness, brightness * 0.7, brightness * 0.8);
+                        rect(x, y, gridSize, gridSize);
+                    }
+                }
+                
+                // Draw wave sources
+                for (let source of sources) {
+                    // Ripple effect
+                    noFill();
+                    strokeWeight(2);
+                    for (let r = 0; r < 5; r++) {
+                        let radius = (time * waveLength + r * 20) % 200;
+                        let alpha = map(radius, 0, 200, 255, 0);
+                        stroke(255, 200, 100, alpha);
+                        ellipse(source.x, source.y, radius * 2);
+                    }
+                    
+                    // Source point
+                    fill(255, 200, 100);
+                    noStroke();
+                    ellipse(source.x, source.y, 20);
+                }
+                
+                displayInfo();
+            }
+        }
+
+        function mousePressed() {
+            if (sources.length < 5) {
+                sources.push({x: mouseX, y: mouseY});
+            }
+        }
+
+        function keyPressed() {
+            if (key === 'r' || key === 'R') {
+                sources = [];
+                sources.push({x: width * 0.3, y: height * 0.5});
+                sources.push({x: width * 0.7, y: height * 0.5});
+                time = 0;
+            }
+            if (key === 'c' || key === 'C') {
+                sources = [];
+            }
+            if (key === '+' || key === '=') {
+                waveLength = min(waveLength + 5, 100);
+            }
+            if (key === '-') {
+                waveLength = max(waveLength - 5, 20);
+            }
+        }
+
+        function displayInfo() {
+            fill(255, 200);
+            textSize(16);
+            text(`Wave Sources: ${sources.length}`, 20, 30);
+            text(`Wavelength: ${waveLength}`, 20, 50);
+            text(`Wave Speed: ${(waveSpeed * 60).toFixed(1)}`, 20, 70);
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth * 0.7, windowHeight * 0.8);
+        }
+
+        // UI Controls
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            sources = [];
+            sources.push({x: width * 0.3, y: height * 0.5});
+            sources.push({x: width * 0.7, y: height * 0.5});
+            time = 0;
+        });
+
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            isPaused = !isPaused;
+            document.getElementById('pauseBtn').textContent = isPaused ? 'Play' : 'Pause';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fourier Series - ArTube</title>
+    <link rel="stylesheet" href="../styles/work.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+</head>
+<body>
+    <nav class="work-nav">
+        <a href="../index.html" class="back-btn">Back to Gallery</a>
+        <h1>Fourier Series</h1>
+        <div class="nav-controls">
+            <button id="resetBtn">Reset</button>
+            <button id="pauseBtn">Pause</button>
+        </div>
+    </nav>
+
+    <main class="work-container">
+        <div id="sketch-container"></div>
+        
+        <div class="work-info">
+            <div class="description">
+                <h2>About this work</h2>
+                <p>フーリエ級数の可視化。複数の正弦波の合成で複雑な波形を生成する様子を観察できます。円の回転と波形の関係を美しく表現しています。</p>
+            </div>
+            
+            <div class="controls">
+                <h3>Controls</h3>
+                <ul>
+                    <li><strong>+/-:</strong> 高調波数調整</li>
+                    <li><strong>1:</strong> 方形波</li>
+                    <li><strong>2:</strong> のこぎり波</li>
+                    <li><strong>3:</strong> 三角波</li>
+                    <li><strong>Click:</strong> 波形切替</li>
+                    <li><strong>R:</strong> リセット</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let harmonics = 5;
+        let waveType = 'square';
+        let time = 0;
+        let wave = [];
+        let maxWaveLength = 400;
+        let isPaused = false;
+
+        function setup() {
+            const canvas = createCanvas(windowWidth * 0.7, windowHeight * 0.8);
+            canvas.parent('sketch-container');
+        }
+
+        function draw() {
+            if (!isPaused) {
+                background(20);
+                
+                translate(200, height / 2);
+                
+                let x = 0;
+                let y = 0;
+                
+                // Draw Fourier series circles
+                for (let i = 0; i < harmonics; i++) {
+                    let prevX = x;
+                    let prevY = y;
+                    
+                    let n = i * 2 + 1;
+                    let radius = 75 * (4 / (n * PI));
+                    
+                    if (waveType === 'square') {
+                        x += radius * cos(n * time);
+                        y += radius * sin(n * time);
+                    } else if (waveType === 'sawtooth') {
+                        n = i + 1;
+                        radius = 75 * (2 / (n * PI)) * pow(-1, n + 1);
+                        x += radius * cos(n * time);
+                        y += radius * sin(n * time);
+                    } else if (waveType === 'triangle') {
+                        radius = 75 * (8 / (PI * PI * n * n)) * pow(-1, (n - 1) / 2);
+                        x += radius * cos(n * time);
+                        y += radius * sin(n * time);
+                    }
+                    
+                    // Draw circle
+                    noFill();
+                    stroke(255, 100);
+                    strokeWeight(1);
+                    ellipse(prevX, prevY, radius * 2);
+                    
+                    // Draw radius line
+                    stroke(255, 150);
+                    line(prevX, prevY, x, y);
+                    
+                    // Draw center point
+                    fill(255, 200, 100);
+                    noStroke();
+                    ellipse(prevX, prevY, 4);
+                }
+                
+                // Final point
+                fill(255, 100, 100);
+                noStroke();
+                ellipse(x, y, 8);
+                
+                // Add point to wave
+                wave.unshift(y);
+                if (wave.length > maxWaveLength) {
+                    wave.pop();
+                }
+                
+                // Draw wave
+                translate(150, 0);
+                stroke(100, 255, 100);
+                strokeWeight(2);
+                noFill();
+                beginShape();
+                for (let i = 0; i < wave.length; i++) {
+                    vertex(i, wave[i]);
+                }
+                endShape();
+                
+                // Connection line
+                stroke(255, 50);
+                strokeWeight(1);
+                line(x - 150, y, 0, wave[0]);
+                
+                // Current value point
+                fill(100, 255, 100);
+                noStroke();
+                ellipse(0, wave[0], 8);
+                
+                time += 0.03;
+                
+                resetMatrix();
+                displayInfo();
+            }
+        }
+
+        function keyPressed() {
+            if (key === '+' || key === '=') {
+                harmonics = min(harmonics + 1, 20);
+            }
+            if (key === '-') {
+                harmonics = max(harmonics - 1, 1);
+            }
+            if (key === '1') waveType = 'square';
+            if (key === '2') waveType = 'sawtooth';
+            if (key === '3') waveType = 'triangle';
+            if (key === 'r' || key === 'R') {
+                harmonics = 5;
+                waveType = 'square';
+                wave = [];
+                time = 0;
+            }
+        }
+
+        function mousePressed() {
+            const types = ['square', 'sawtooth', 'triangle'];
+            let currentIndex = types.indexOf(waveType);
+            waveType = types[(currentIndex + 1) % types.length];
+            wave = [];
+        }
+
+        function displayInfo() {
+            fill(255, 200);
+            textSize(16);
+            text(`Harmonics: ${harmonics}`, 20, 30);
+            text(`Wave Type: ${getWaveTypeName(waveType)}`, 20, 50);
+        }
+
+        function getWaveTypeName(type) {
+            const names = {
+                'square': 'Square Wave',
+                'sawtooth': 'Sawtooth Wave',
+                'triangle': 'Triangle Wave'
+            };
+            return names[type] || type;
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth * 0.7, windowHeight * 0.8);
+        }
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            harmonics = 5;
+            waveType = 'square';
+            wave = [];
+            time = 0;
+        });
+
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            isPaused = !isPaused;
+            document.getElementById('pauseBtn').textContent = isPaused ? 'Play' : 'Pause';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reaction Diffusion - ArTube</title>
+    <link rel="stylesheet" href="../styles/work.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+</head>
+<body>
+    <nav class="work-nav">
+        <a href="../index.html" class="back-btn">Back to Gallery</a>
+        <h1>Reaction Diffusion</h1>
+        <div class="nav-controls">
+            <button id="resetBtn">Reset</button>
+            <button id="pauseBtn">Pause</button>
+        </div>
+    </nav>
+
+    <main class="work-container">
+        <div id="sketch-container"></div>
+        
+        <div class="work-info">
+            <div class="description">
+                <h2>About this work</h2>
+                <p>反応拡散系のシミュレーション。自然界に見られる複雑なパターンの生成過程を可視化します。異なるパラメータで様々な模様が現れます。</p>
+            </div>
+            
+            <div class="controls">
+                <h3>Controls</h3>
+                <ul>
+                    <li><strong>Click:</strong> 種を配置</li>
+                    <li><strong>1-4:</strong> プリセット</li>
+                    <li><strong>R:</strong> リセット</li>
+                </ul>
+                
+                <h3>Presets</h3>
+                <ul>
+                    <li><strong>1:</strong> Coral Growth</li>
+                    <li><strong>2:</strong> Maze Pattern</li>
+                    <li><strong>3:</strong> Spots</li>
+                    <li><strong>4:</strong> Worms</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let grid;
+        let next;
+        let dA = 1;
+        let dB = 0.5;
+        let feed = 0.055;
+        let kill = 0.062;
+        let cols, rows;
+        let cellSize = 2;
+        let isPaused = false;
+
+        function setup() {
+            const canvas = createCanvas(windowWidth * 0.7, windowHeight * 0.8);
+            canvas.parent('sketch-container');
+            pixelDensity(1);
+            
+            cols = width / cellSize;
+            rows = height / cellSize;
+            
+            grid = [];
+            next = [];
+            
+            for (let x = 0; x < cols; x++) {
+                grid[x] = [];
+                next[x] = [];
+                for (let y = 0; y < rows; y++) {
+                    grid[x][y] = { a: 1, b: 0 };
+                    next[x][y] = { a: 1, b: 0 };
+                }
+            }
+            
+            seedPattern();
+        }
+
+        function draw() {
+            if (!isPaused) {
+                background(51);
+                
+                for (let i = 0; i < 5; i++) {
+                    update();
+                }
+                
+                loadPixels();
+                for (let x = 0; x < cols; x++) {
+                    for (let y = 0; y < rows; y++) {
+                        let pix = (x * cellSize + y * cellSize * width) * 4;
+                        let a = next[x][y].a;
+                        let b = next[x][y].b;
+                        let c = floor((a - b) * 255);
+                        c = constrain(c, 0, 255);
+                        
+                        pixels[pix + 0] = c;
+                        pixels[pix + 1] = c * 0.5 + b * 255;
+                        pixels[pix + 2] = b * 255;
+                        pixels[pix + 3] = 255;
+                    }
+                }
+                updatePixels();
+                
+                displayInfo();
+            }
+        }
+
+        function update() {
+            for (let x = 1; x < cols - 1; x++) {
+                for (let y = 1; y < rows - 1; y++) {
+                    let a = grid[x][y].a;
+                    let b = grid[x][y].b;
+                    
+                    let laplaceA = 0;
+                    let laplaceB = 0;
+                    
+                    laplaceA += a * -1;
+                    laplaceA += grid[x + 1][y].a * 0.2;
+                    laplaceA += grid[x - 1][y].a * 0.2;
+                    laplaceA += grid[x][y + 1].a * 0.2;
+                    laplaceA += grid[x][y - 1].a * 0.2;
+                    laplaceA += grid[x + 1][y + 1].a * 0.05;
+                    laplaceA += grid[x - 1][y - 1].a * 0.05;
+                    laplaceA += grid[x - 1][y + 1].a * 0.05;
+                    laplaceA += grid[x + 1][y - 1].a * 0.05;
+                    
+                    laplaceB += b * -1;
+                    laplaceB += grid[x + 1][y].b * 0.2;
+                    laplaceB += grid[x - 1][y].b * 0.2;
+                    laplaceB += grid[x][y + 1].b * 0.2;
+                    laplaceB += grid[x][y - 1].b * 0.2;
+                    laplaceB += grid[x + 1][y + 1].b * 0.05;
+                    laplaceB += grid[x - 1][y - 1].b * 0.05;
+                    laplaceB += grid[x - 1][y + 1].b * 0.05;
+                    laplaceB += grid[x + 1][y - 1].b * 0.05;
+                    
+                    next[x][y].a = a + (dA * laplaceA - a * b * b + feed * (1 - a));
+                    next[x][y].b = b + (dB * laplaceB + a * b * b - (kill + feed) * b);
+                    
+                    next[x][y].a = constrain(next[x][y].a, 0, 1);
+                    next[x][y].b = constrain(next[x][y].b, 0, 1);
+                }
+            }
+            
+            let temp = grid;
+            grid = next;
+            next = temp;
+        }
+
+        function seedPattern() {
+            let centerX = floor(cols / 2);
+            let centerY = floor(rows / 2);
+            let size = 10;
+            
+            for (let i = centerX - size; i < centerX + size; i++) {
+                for (let j = centerY - size; j < centerY + size; j++) {
+                    if (i >= 0 && i < cols && j >= 0 && j < rows) {
+                        grid[i][j].b = 1;
+                    }
+                }
+            }
+        }
+
+        function mousePressed() {
+            let x = floor(mouseX / cellSize);
+            let y = floor(mouseY / cellSize);
+            let size = 5;
+            
+            for (let i = x - size; i < x + size; i++) {
+                for (let j = y - size; j < y + size; j++) {
+                    if (i >= 0 && i < cols && j >= 0 && j < rows) {
+                        grid[i][j].b = 1;
+                    }
+                }
+            }
+        }
+
+        function keyPressed() {
+            if (key === 'r' || key === 'R') {
+                for (let x = 0; x < cols; x++) {
+                    for (let y = 0; y < rows; y++) {
+                        grid[x][y].a = 1;
+                        grid[x][y].b = 0;
+                    }
+                }
+                seedPattern();
+            }
+            
+            if (key === '1') {
+                feed = 0.055;
+                kill = 0.062;
+            }
+            if (key === '2') {
+                feed = 0.03;
+                kill = 0.062;
+            }
+            if (key === '3') {
+                feed = 0.025;
+                kill = 0.06;
+            }
+            if (key === '4') {
+                feed = 0.039;
+                kill = 0.058;
+            }
+        }
+
+        function displayInfo() {
+            fill(255, 200);
+            textSize(16);
+            text(`Feed: ${feed.toFixed(3)}, Kill: ${kill.toFixed(3)}`, 20, 30);
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth * 0.7, windowHeight * 0.8);
+            cols = width / cellSize;
+            rows = height / cellSize;
+            
+            // Reinitialize grid
+            grid = [];
+            next = [];
+            for (let x = 0; x < cols; x++) {
+                grid[x] = [];
+                next[x] = [];
+                for (let y = 0; y < rows; y++) {
+                    grid[x][y] = { a: 1, b: 0 };
+                    next[x][y] = { a: 1, b: 0 };
+                }
+            }
+            seedPattern();
+        }
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            for (let x = 0; x < cols; x++) {
+                for (let y = 0; y < rows; y++) {
+                    grid[x][y].a = 1;
+                    grid[x][y].b = 0;
+                }
+            }
+            seedPattern();
+        });
+
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            isPaused = !isPaused;
+            document.getElementById('pauseBtn').textContent = isPaused ? 'Play' : 'Pause';
+        });
+    </script>
+</body>
+</html>

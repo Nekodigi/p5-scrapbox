@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pattern Memory Game - ArTube</title>
+    <link rel="stylesheet" href="../styles/work.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+</head>
+<body>
+    <nav class="work-nav">
+        <a href="../index.html" class="back-btn">Back to Gallery</a>
+        <h1>Pattern Memory Game</h1>
+        <div class="nav-controls">
+            <button id="resetBtn">Reset</button>
+            <button id="startBtn">Start</button>
+        </div>
+    </nav>
+
+    <main class="work-container">
+        <div id="sketch-container"></div>
+        
+        <div class="work-info">
+            <div class="description">
+                <h2>About this work</h2>
+                <p>A memory game that challenges you to remember and reproduce increasingly complex patterns. Watch the sequence carefully, then click the tiles in the correct order. The patterns become more challenging as you progress through the levels.</p>
+            </div>
+            
+            <div class="controls">
+                <h3>Controls</h3>
+                <ul>
+                    <li><strong>Click:</strong> Select tiles in order</li>
+                    <li><strong>Space:</strong> Start/Restart game</li>
+                    <li><strong>R:</strong> Return to menu</li>
+                    <li><strong>D:</strong> Toggle debug mode</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <script src="../scripts/sketches/interactive/pattern-memory.js"></script>
+    <script>
+        // Override the setup function to work with the container
+        let originalSetup = setup;
+        setup = function() {
+            const canvas = createCanvas(windowWidth * 0.7, windowHeight * 0.8);
+            canvas.parent('sketch-container');
+            
+            // Call the original setup if it exists
+            if (typeof originalSetup === 'function') {
+                originalSetup();
+            }
+        }
+
+        // Override windowResized
+        let originalWindowResized = windowResized;
+        windowResized = function() {
+            resizeCanvas(windowWidth * 0.7, windowHeight * 0.8);
+            if (typeof originalWindowResized === 'function') {
+                originalWindowResized();
+            }
+        }
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            // Reset the game
+            if (typeof resetGame === 'function') {
+                resetGame();
+            }
+        });
+
+        document.getElementById('startBtn').addEventListener('click', () => {
+            // Start new game
+            if (typeof startGame === 'function') {
+                startGame();
+            }
+        });
+    </script>
+</body>
+</html>

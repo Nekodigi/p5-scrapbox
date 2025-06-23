@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shortest Path Algorithms - ArTube</title>
+    <link rel="stylesheet" href="../styles/work.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <script src="../scripts/sketches/algorithms/shortest-path.js"></script>
+</head>
+<body>
+    <nav class="work-nav">
+        <a href="../index.html" class="back-btn">← Back to Gallery</a>
+        <h1>Shortest Path Algorithms</h1>
+        <div class="nav-controls">
+            <button id="searchBtn">🔍 Search</button>
+            <button id="resetBtn">🔄 Reset</button>
+            <button id="mazeBtn">🧩 Maze</button>
+            <button id="compareBtn">⚡ Compare Heuristics</button>
+        </div>
+    </nav>
+
+    <main class="work-container">
+        <div id="sketch-container"></div>
+        
+        <div class="work-info">
+            <div class="description">
+                <h2>About this work</h2>
+                <p>様々な最短経路探索アルゴリズムの可視化。A*アルゴリズムのヒューリスティックを変更することで、ダイクストラ法やその他の探索手法の動作を観察できます。</p>
+                <p>各アルゴリズムの探索過程と最終的な経路を視覚的に比較し、それぞれの特性と効率性を理解できます。</p>
+            </div>
+            
+            <div class="controls">
+                <h3>Algorithms</h3>
+                <ul>
+                    <li><strong>A* (A-star):</strong> ヒューリスティックを使用する最も効率的なアルゴリズム</li>
+                    <li><strong>Dijkstra:</strong> すべての経路を探索する確実なアルゴリズム</li>
+                    <li><strong>BFS:</strong> 幅優先探索、重みなしグラフで最短経路を保証</li>
+                    <li><strong>DFS:</strong> 深さ優先探索、最短経路は保証されない</li>
+                    <li><strong>Greedy:</strong> ヒューリスティックのみを使用する高速だが不完全な手法</li>
+                </ul>
+                
+                <h3>Controls</h3>
+                <ul>
+                    <li><strong>[1-5]:</strong> アルゴリズムを選択</li>
+                    <li><strong>[H]:</strong> ヒューリスティック関数を変更</li>
+                    <li><strong>[D]:</strong> 斜め移動の有効/無効</li>
+                    <li><strong>[Space]:</strong> 探索開始</li>
+                    <li><strong>[R]:</strong> リセット</li>
+                    <li><strong>[C]:</strong> 壁をクリア</li>
+                    <li><strong>[M]:</strong> 迷路を生成</li>
+                    <li><strong>[W/S/E]:</strong> 配置モード切替（壁/開始/終了）</li>
+                    <li><strong>マウス:</strong> クリック＆ドラッグで壁を配置</li>
+                    <li><strong>[↑↓]:</strong> アニメーション速度調整</li>
+                    <li><strong>⚡ Compare:</strong> 異なるヒューリスティックで同時実行</li>
+                </ul>
+                
+                <h3>Heuristics</h3>
+                <ul>
+                    <li><strong>Manhattan:</strong> 格子上の距離（L1ノルム）</li>
+                    <li><strong>Euclidean:</strong> 直線距離（L2ノルム）</li>
+                    <li><strong>Octile:</strong> 8方向移動に最適化</li>
+                    <li><strong>Chebyshev:</strong> チェス盤距離（L∞ノルム）</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Event listeners for buttons
+        window.addEventListener('load', () => {
+            document.getElementById('searchBtn').addEventListener('click', () => {
+                if (typeof grid !== 'undefined' && grid) {
+                    grid.startSearch();
+                }
+            });
+
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                if (typeof grid !== 'undefined' && grid) {
+                    grid.reset();
+                }
+            });
+            
+            document.getElementById('mazeBtn').addEventListener('click', () => {
+                if (typeof grid !== 'undefined' && grid) {
+                    grid.generateMaze();
+                }
+            });
+            
+            document.getElementById('compareBtn').addEventListener('click', () => {
+                if (typeof grid !== 'undefined' && grid) {
+                    grid.startHeuristicComparison();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

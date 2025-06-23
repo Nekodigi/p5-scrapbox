@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Particle Lenia - ArTube</title>
+    <link rel="stylesheet" href="../styles/work.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+</head>
+<body>
+    <nav class="work-nav">
+        <a href="../index.html" class="back-btn">Back to Gallery</a>
+        <h1>Particle Lenia</h1>
+        <div class="nav-controls">
+            <button id="resetBtn">Reset</button>
+            <button id="pauseBtn">Pause</button>
+        </div>
+    </nav>
+
+    <main class="work-container">
+        <div id="sketch-container"></div>
+        
+        <div class="work-info">
+            <div class="description">
+                <h2>About this work</h2>
+                <p>パーティクル・レニア（Particle Lenia）は、連続的な細胞オートマトンの一種で、生命のような振る舞いを示す美しいパターンを生成します。</p>
+                <p>WebGLシェーダーによる3D表現とHDR環境マッピングにより、未知の生命体のような有機的な質感を実現しています。</p>
+                <p>リアルタイムで変化する複雑なパターンは、単純な数学的ルールから創発される生命の神秘を表現しています。</p>
+            </div>
+            
+            <div class="controls">
+                <h3>Controls</h3>
+                <ul>
+                    <li><strong>クリック:</strong> パターンを追加</li>
+                    <li><strong>1-5:</strong> プリセット切り替え</li>
+                    <li><strong>Space:</strong> 一時停止/再開</li>
+                    <li><strong>R:</strong> リセット</li>
+                    <li><strong>E:</strong> 環境マップ切り替え</li>
+                </ul>
+                
+                <h3>Parameters</h3>
+                <div class="parameter-controls">
+                    <label>
+                        Growth μ: <span id="muValue">0.14</span>
+                        <input type="range" id="muSlider" min="0.1" max="0.2" step="0.001" value="0.14">
+                    </label>
+                    <label>
+                        Kernel σ: <span id="sigmaValue">0.014</span>
+                        <input type="range" id="sigmaSlider" min="0.01" max="0.02" step="0.001" value="0.014">
+                    </label>
+                    <label>
+                        Reflection: <span id="reflectionValue">0.7</span>
+                        <input type="range" id="reflectionSlider" min="0" max="1" step="0.1" value="0.7">
+                    </label>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <style>
+        .parameter-controls {
+            margin-top: 1rem;
+        }
+        .parameter-controls label {
+            display: block;
+            margin: 0.5rem 0;
+            font-size: 0.9rem;
+        }
+        .parameter-controls input[type="range"] {
+            width: 100%;
+            margin-top: 0.25rem;
+        }
+        .parameter-controls span {
+            font-weight: bold;
+            color: #00ff88;
+        }
+    </style>
+
+    <script>
+        // Shader variables
+        let computeShader, displayShader, splatShader;
+        
+        // Framebuffers
+        let leniaTexture, leniaTextureNext;
+        let envTexture;
+        
+        // Parameters
+        let gridSize = 256;
+        let mu = 0.14;
+        let sigma = 0.014;
+        let dt = 0.03;
+        let reflectionIntensity = 0.7;
+        let isPaused = false;
+        let time = 0;
+        
+        let envMode = 0;
+
+        function setup() {
+            const canvas = createCanvas(windowWidth * 0.7, windowHeight * 0.8, WEBGL);
+            canvas.parent('sketch-container');
+            
+            // Load shaders
+            const script = document.createElement('script');
+            script.src = '../scripts/sketches/cellular/particle-lenia.js';
+            script.onload = function() {
+                initializeShaders();
+                initializeFramebuffers();
+                createEnvironmentTexture();
+                resetSimulation();
+            };
+            document.head.appendChild(script);
+        }
+
+        function initializeShaders() {
+            // Check if shader code is available
+            if (typeof vertexShader === 'undefined' || typeof leniaComputeShaderCode === 'undefined') {
+                console.error('Shader code not loaded yet');
+                setTimeout(initializeShaders, 100);
+                return;
+            }
+            
+            // Create all shaders
+            computeShader = createShader(vertexShader, leniaComputeShaderCode);
+            displayShader = createShader(vertexShader, displayShaderCode);
+            splatShader = createShader(vertexShader, splatShaderCode);
+            
+            // Check shader creation success
+            if (!computeShader) {
+                console.error('Failed to create computeShader');
+            }
+            if (!displayShader) {
+                console.error('Failed to create displayShader');
+            }
+            if (!splatShader) {
+                console.error('Failed to create splatShader');
+            }
+        }
+
+        function initializeFramebuffers() {
+            // Create framebuffers for simulation
+            const options = { width: gridSize, height: gridSize, format: FLOAT };
+            
+            leniaTexture = createFramebuffer(options);
+            leniaTextureNext = createFramebuffer(options);
+        }
+
+        function createEnvironmentTexture() {
+            envTexture = createImage(512, 256);
+            envTexture.loadPixels();
+            
+            for (let i = 0; i < envTexture.width; i++) {
+                for (let j = 0; j < envTexture.height; j++) {
+                    let idx = (i + j * envTexture.width) * 4;
+                    let u = i / envTexture.width;
+                    let v = j / envTexture.height;
+                    
+                    // Create alien-like environment
+                    let r, g, b;
+                    if (envMode === 0) {
+                        // Purple-teal gradient
+                        r = 100 + v * 100 + sin(u * TWO_PI) * 55;
+                        g = 50 + v * 100 + cos(u * TWO_PI + 1) * 50;
+                        b = 200 - v * 100 + sin(u * TWO_PI + 2) * 50;
+                    } else {
+                        // Orange-blue gradient
+                        r = 200 + v * 55 - sin(u * TWO_PI) * 100;
+                        g = 100 + v * 100;
+                        b = 50 + v * 150 + cos(u * TWO_PI) * 50;
+                    }
+                    
+                    envTexture.pixels[idx] = r;
+                    envTexture.pixels[idx + 1] = g;
+                    envTexture.pixels[idx + 2] = b;
+                    envTexture.pixels[idx + 3] = 255;
+                }
+            }
+            envTexture.updatePixels();
+        }
+
+        function resetSimulation() {
+            // Clear all framebuffers
+            [leniaTexture, leniaTextureNext].forEach(fb => {
+                fb.begin();
+                clear();
+                fb.end();
+            });
+            
+            // Add initial patterns
+            leniaTexture.begin();
+            push();
+            resetShader();
+            noStroke();
+            for (let i = 0; i < 5; i++) {
+                fill(255);
+                let x = random(-width/2, width/2);
+                let y = random(-height/2, height/2);
+                let size = random(20, 60);
+                ellipse(x, y, size);
+            }
+            pop();
+            leniaTexture.end();
+            
+            time = 0;
+        }
+
+        function draw() {
+            if (!computeShader || !displayShader || !splatShader) {
+                background(0);
+                fill(255);
+                textAlign(CENTER, CENTER);
+                text("Loading shaders...", 0, 0);
+                return;
+            }
+            
+            if (!isPaused) {
+                time += deltaTime * 0.001;
+                updateLenia();
+            }
+            
+            // Display result
+            if (displayShader) {
+                shader(displayShader);
+                displayShader.setUniform('u_leniaTexture', leniaTexture);
+                displayShader.setUniform('u_envTexture', envTexture);
+                displayShader.setUniform('u_time', time);
+                displayShader.setUniform('u_reflectionIntensity', reflectionIntensity);
+                displayShader.setUniform('u_resolution', [gridSize, gridSize]);
+                rect(-width/2, -height/2, width, height);
+            }
+            
+            // Display info
+            displayInfo();
+        }
+
+        function updateLenia() {
+            if (!computeShader) return;
+            
+            // Compute next state
+            leniaTextureNext.begin();
+            shader(computeShader);
+            computeShader.setUniform('u_prevState', leniaTexture);
+            computeShader.setUniform('u_resolution', [gridSize, gridSize]);
+            computeShader.setUniform('u_mu', mu);
+            computeShader.setUniform('u_sigma', sigma);
+            computeShader.setUniform('u_dt', dt);
+            computeShader.setUniform('u_time', time);
+            rect(-width/2, -height/2, width, height);
+            leniaTextureNext.end();
+            
+            // Swap textures
+            [leniaTexture, leniaTextureNext] = [leniaTextureNext, leniaTexture];
+        }
+
+        function displayInfo() {
+            push();
+            resetShader();
+            fill(255, 200);
+            textAlign(LEFT, TOP);
+            text(`μ: ${mu.toFixed(3)}, σ: ${sigma.toFixed(3)}`, -width/2 + 20, -height/2 + 20);
+            text(`FPS: ${frameRate().toFixed(0)}`, -width/2 + 20, -height/2 + 40);
+            pop();
+        }
+
+        function mousePressed() {
+            if (!splatShader) return;
+            
+            // Add splat at mouse position
+            leniaTextureNext.begin();
+            shader(splatShader);
+            splatShader.setUniform('u_source', leniaTexture);
+            splatShader.setUniform('u_center', [mouseX / width, 1.0 - mouseY / height]);
+            splatShader.setUniform('u_radius', 0.05);
+            splatShader.setUniform('u_strength', 1.0);
+            rect(-width/2, -height/2, width, height);
+            leniaTextureNext.end();
+            [leniaTexture, leniaTextureNext] = [leniaTextureNext, leniaTexture];
+        }
+
+        function keyPressed() {
+            if (key === 'r' || key === 'R') {
+                resetSimulation();
+            } else if (key === ' ') {
+                isPaused = !isPaused;
+            } else if (key === 'e' || key === 'E') {
+                envMode = (envMode + 1) % 2;
+                createEnvironmentTexture();
+            } else if (key >= '1' && key <= '5') {
+                applyPreset(parseInt(key));
+            }
+        }
+
+        function applyPreset(preset) {
+            switch(preset) {
+                case 1: // Stable Orbium
+                    mu = 0.14;
+                    sigma = 0.014;
+                    dt = 0.03;
+                    break;
+                case 2: // Slow Growth
+                    mu = 0.13;
+                    sigma = 0.013;
+                    dt = 0.025;
+                    break;
+                case 3: // Fast Growth
+                    mu = 0.15;
+                    sigma = 0.015;
+                    dt = 0.035;
+                    break;
+                case 4: // Compact
+                    mu = 0.12;
+                    sigma = 0.012;
+                    dt = 0.02;
+                    break;
+                case 5: // Dispersed
+                    mu = 0.16;
+                    sigma = 0.016;
+                    dt = 0.04;
+                    break;
+            }
+            
+            document.getElementById('muSlider').value = mu;
+            document.getElementById('muValue').textContent = mu.toFixed(3);
+            document.getElementById('sigmaSlider').value = sigma;
+            document.getElementById('sigmaValue').textContent = sigma.toFixed(3);
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth * 0.7, windowHeight * 0.8);
+        }
+
+        // UI event listeners
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            resetSimulation();
+        });
+
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            isPaused = !isPaused;
+            document.getElementById('pauseBtn').textContent = isPaused ? 'Play' : 'Pause';
+        });
+
+        document.getElementById('muSlider').addEventListener('input', (e) => {
+            mu = parseFloat(e.target.value);
+            document.getElementById('muValue').textContent = mu.toFixed(3);
+        });
+
+        document.getElementById('sigmaSlider').addEventListener('input', (e) => {
+            sigma = parseFloat(e.target.value);
+            document.getElementById('sigmaValue').textContent = sigma.toFixed(3);
+        });
+
+        document.getElementById('reflectionSlider').addEventListener('input', (e) => {
+            reflectionIntensity = parseFloat(e.target.value);
+            document.getElementById('reflectionValue').textContent = reflectionIntensity.toFixed(1);
+        });
+    </script>
+</body>
+</html>

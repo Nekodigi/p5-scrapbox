@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mandelbrot Explorer - ArTube</title>
+    <link rel="stylesheet" href="../styles/work.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+</head>
+<body>
+    <nav class="work-nav">
+        <a href="../index.html" class="back-btn">Back to Gallery</a>
+        <h1>Mandelbrot Explorer</h1>
+        <div class="nav-controls">
+            <button id="resetBtn">Reset</button>
+            <button id="colorBtn">🎨 Color</button>
+        </div>
+    </nav>
+
+    <main class="work-container">
+        <div id="sketch-container"></div>
+        
+        <div class="work-info">
+            <div class="description">
+                <h2>About this work</h2>
+                <p>マンデルブロ集合の探索ツール。無限に続く複雑なフラクタルパターンを探検できます。</p>
+                <p>GPUシェーダーを使用した高速レンダリングにより、リアルタイムでズームや移動が可能です。</p>
+                <p>深くズームすることで、自己相似的な構造や予想外の美しいパターンを発見できます。</p>
+            </div>
+            
+            <div class="controls">
+                <h3>Controls</h3>
+                <ul>
+                    <li><strong>マウスホイール:</strong> ズームイン/アウト</li>
+                    <li><strong>ドラッグ:</strong> 画面を移動</li>
+                    <li><strong>C:</strong> カラーモードを変更</li>
+                    <li><strong>+/-:</strong> 反復回数を増減</li>
+                    <li><strong>R:</strong> ビューをリセット</li>
+                    <li><strong>S:</strong> 画像を保存</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let mandelbrotShader;
+        let zoom = 1.0;
+        let centerX = -0.5;
+        let centerY = 0.0;
+        let maxIterations = 100;
+        let colorMode = 0;
+
+        function setup() {
+            const canvas = createCanvas(windowWidth * 0.7, windowHeight * 0.8, WEBGL);
+            canvas.parent('sketch-container');
+            
+            // 外部スクリプトをロード
+            const script = document.createElement('script');
+            script.src = '../scripts/sketches/fractals/mandelbrot-explorer.js';
+            script.onload = function() {
+                // シェーダーを作成
+                mandelbrotShader = createShader(vertexShader, fragmentShader);
+                noStroke();
+            };
+            document.head.appendChild(script);
+        }
+
+        function draw() {
+            if (mandelbrotShader) {
+                shader(mandelbrotShader);
+                
+                mandelbrotShader.setUniform('u_resolution', [width, height]);
+                mandelbrotShader.setUniform('u_zoom', zoom);
+                mandelbrotShader.setUniform('u_centerX', centerX);
+                mandelbrotShader.setUniform('u_centerY', centerY);
+                mandelbrotShader.setUniform('u_maxIterations', maxIterations);
+                mandelbrotShader.setUniform('u_colorMode', colorMode);
+                
+                rect(-width/2, -height/2, width, height);
+            }
+        }
+
+        function mouseWheel(event) {
+            let zoomFactor = event.delta > 0 ? 0.9 : 1.1;
+            
+            let mouseComplexX = (mouseX / width - 0.5) * 4.0 / zoom * (width / height) + centerX;
+            let mouseComplexY = (mouseY / height - 0.5) * 4.0 / zoom + centerY;
+            
+            zoom *= zoomFactor;
+            
+            centerX = mouseComplexX - (mouseX / width - 0.5) * 4.0 / zoom * (width / height);
+            centerY = mouseComplexY - (mouseY / height - 0.5) * 4.0 / zoom;
+            
+            return false;
+        }
+
+        function mouseDragged() {
+            let dx = (pmouseX - mouseX) / width * 4.0 / zoom * (width / height) * 0.5;
+            let dy = (pmouseY - mouseY) / height * 4.0 / zoom * 0.5;
+            
+            centerX += dx;
+            centerY += dy;
+        }
+
+        function keyPressed() {
+            if (key === 'r' || key === 'R') {
+                zoom = 1.0;
+                centerX = -0.5;
+                centerY = 0.0;
+            } else if (key === 'c' || key === 'C') {
+                colorMode = (colorMode + 1) % 3;
+            } else if (key === '+' || key === '=') {
+                maxIterations = min(maxIterations + 50, 1000);
+            } else if (key === '-' || key === '_') {
+                maxIterations = max(maxIterations - 50, 50);
+            } else if (key === 's' || key === 'S') {
+                save('mandelbrot.png');
+            }
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth * 0.7, windowHeight * 0.8);
+        }
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            zoom = 1.0;
+            centerX = -0.5;
+            centerY = 0.0;
+        });
+
+        document.getElementById('colorBtn').addEventListener('click', () => {
+            colorMode = (colorMode + 1) % 3;
+        });
+    </script>
+</body>
+</html>

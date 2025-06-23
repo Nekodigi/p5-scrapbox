@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L-System Garden - ArTube</title>
+    <link rel="stylesheet" href="../styles/work.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+</head>
+<body>
+    <nav class="work-nav">
+        <a href="../index.html" class="back-btn">Back to Gallery</a>
+        <h1>L-System Garden</h1>
+        <div class="nav-controls">
+            <button id="resetBtn">Reset</button>
+            <button id="pauseBtn">Pause</button>
+        </div>
+    </nav>
+
+    <main class="work-container">
+        <div id="sketch-container"></div>
+        
+        <div class="work-info">
+            <div class="description">
+                <h2>About this work</h2>
+                <p>タップするだけで美しい植物が生える、インタラクティブな庭園です。🌸桜、🌻向日葵、🌿シダ、🌹薔薇、🌵サボテンなど、様々な植物が成長し、風に揺れる様子をお楽しみください。</p>
+            </div>
+            
+            <div class="controls">
+                <h3>Controls</h3>
+                <ul>
+                    <li><strong>タップ/クリック:</strong> 植物を植える</li>
+                    <li><strong>スペース:</strong> ランダムに3つの植物を追加</li>
+                    <li><strong>R:</strong> 庭園をクリア</li>
+                    <li><strong>🗑️ボタン:</strong> 庭園をクリア（モバイル）</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <script src="../scripts/sketches/fractals/l-system-garden.js"></script>
+    <script>
+        let isPaused = false;
+        
+        function setup() {
+            const canvas = createCanvas(windowWidth, windowHeight);
+            canvas.parent('sketch-container');
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+        }
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            if (typeof plants !== 'undefined') {
+                plants = [];
+            }
+        });
+
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            isPaused = !isPaused;
+            if (isPaused) {
+                noLoop();
+            } else {
+                loop();
+            }
+            document.getElementById('pauseBtn').textContent = isPaused ? 'Play' : 'Pause';
+        });
+    </script>
+</body>
+</html>

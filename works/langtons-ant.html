@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Langton's Ant - ArTube</title>
+    <link rel="stylesheet" href="../styles/work.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+</head>
+<body>
+    <nav class="work-nav">
+        <a href="../index.html" class="back-btn">Back to Gallery</a>
+        <h1>Langton's Ant</h1>
+        <div class="nav-controls">
+            <button id="resetBtn">Reset</button>
+            <button id="pauseBtn">Pause</button>
+        </div>
+    </nav>
+
+    <main class="work-container">
+        <div id="sketch-container"></div>
+        
+        <div class="work-info">
+            <div class="description">
+                <h2>About this work</h2>
+                <p>ラングトンのアリの軌跡シミュレーション。単純なルールに従って動くアリが、驚くほど複雑で美しいパターンを生成します。秩序と混沌の境界線を探求する作品です。</p>
+            </div>
+            
+            <div class="controls">
+                <h3>Controls</h3>
+                <ul>
+                    <li><strong>Click:</strong> アリの位置変更</li>
+                    <li><strong>+/-:</strong> 速度調整</li>
+                    <li><strong>R:</strong> リセット</li>
+                    <li><strong>C:</strong> 軌跡クリア</li>
+                    <li><strong>Space:</strong> 一時停止</li>
+                </ul>
+                
+                <h3>Rules</h3>
+                <ul>
+                    <li>白いセル：右回転して黒に</li>
+                    <li>黒いセル：左回転して白に</li>
+                    <li>前進して次のセルへ</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let grid;
+        let ant;
+        let cols, rows;
+        let cellSize = 4;
+        let speed = 5;
+        let steps = 0;
+        let isPaused = false;
+        let colors = [];
+
+        function setup() {
+            const canvas = createCanvas(windowWidth * 0.7, windowHeight * 0.8);
+            canvas.parent('sketch-container');
+            
+            cols = floor(width / cellSize);
+            rows = floor(height / cellSize);
+            
+            // Create grid
+            grid = [];
+            for (let i = 0; i < cols; i++) {
+                grid[i] = [];
+                for (let j = 0; j < rows; j++) {
+                    grid[i][j] = 0; // 0 = white, 1 = black
+                }
+            }
+            
+            // Initialize ant
+            ant = {
+                x: floor(cols / 2),
+                y: floor(rows / 2),
+                dir: 0 // 0=up, 1=right, 2=down, 3=left
+            };
+            
+            // Color palette for trail visualization
+            colors = [
+                color(255, 255, 255), // white
+                color(0, 0, 0),       // black
+                color(255, 100, 100), // red (ant)
+                color(100, 150, 255), // blue (recent trail)
+                color(150, 255, 100)  // green (old trail)
+            ];
+        }
+
+        function draw() {
+            if (!isPaused) {
+                background(240);
+                
+                // Multiple steps per frame for faster animation
+                for (let i = 0; i < speed; i++) {
+                    moveAnt();
+                }
+                
+                // Draw grid
+                for (let i = 0; i < cols; i++) {
+                    for (let j = 0; j < rows; j++) {
+                        let x = i * cellSize;
+                        let y = j * cellSize;
+                        
+                        if (grid[i][j] === 1) {
+                            // Gradient effect based on age
+                            let hue = (steps * 2 + i + j) % 360;
+                            colorMode(HSB, 360, 100, 100);
+                            fill(hue, 70, 30);
+                            noStroke();
+                            rect(x, y, cellSize, cellSize);
+                        }
+                    }
+                }
+                
+                // Draw ant
+                let antX = ant.x * cellSize + cellSize/2;
+                let antY = ant.y * cellSize + cellSize/2;
+                
+                colorMode(RGB, 255);
+                fill(255, 50, 50);
+                noStroke();
+                ellipse(antX, antY, cellSize * 1.5);
+                
+                // Draw ant direction
+                stroke(255, 255, 255);
+                strokeWeight(2);
+                let dirX = cos(ant.dir * PI/2 - PI/2) * cellSize * 0.6;
+                let dirY = sin(ant.dir * PI/2 - PI/2) * cellSize * 0.6;
+                line(antX, antY, antX + dirX, antY + dirY);
+                
+                displayInfo();
+            }
+        }
+
+        function moveAnt() {
+            // Check bounds
+            if (ant.x < 0 || ant.x >= cols || ant.y < 0 || ant.y >= rows) {
+                return;
+            }
+            
+            // Apply Langton's Ant rules
+            if (grid[ant.x][ant.y] === 0) {
+                // White cell: turn right, make black
+                ant.dir = (ant.dir + 1) % 4;
+                grid[ant.x][ant.y] = 1;
+            } else {
+                // Black cell: turn left, make white
+                ant.dir = (ant.dir + 3) % 4;
+                grid[ant.x][ant.y] = 0;
+            }
+            
+            // Move forward
+            switch (ant.dir) {
+                case 0: ant.y--; break; // up
+                case 1: ant.x++; break; // right
+                case 2: ant.y++; break; // down
+                case 3: ant.x--; break; // left
+            }
+            
+            steps++;
+        }
+
+        function mousePressed() {
+            // Move ant to clicked position
+            let newX = floor(mouseX / cellSize);
+            let newY = floor(mouseY / cellSize);
+            
+            if (newX >= 0 && newX < cols && newY >= 0 && newY < rows) {
+                ant.x = newX;
+                ant.y = newY;
+                ant.dir = floor(random(4));
+            }
+        }
+
+        function keyPressed() {
+            if (key === ' ') {
+                isPaused = !isPaused;
+            }
+            if (key === 'r' || key === 'R') {
+                // Reset everything
+                for (let i = 0; i < cols; i++) {
+                    for (let j = 0; j < rows; j++) {
+                        grid[i][j] = 0;
+                    }
+                }
+                ant.x = floor(cols / 2);
+                ant.y = floor(rows / 2);
+                ant.dir = 0;
+                steps = 0;
+            }
+            if (key === 'c' || key === 'C') {
+                // Clear trail only
+                for (let i = 0; i < cols; i++) {
+                    for (let j = 0; j < rows; j++) {
+                        grid[i][j] = 0;
+                    }
+                }
+                steps = 0;
+            }
+            if (key === '+' || key === '=') {
+                speed = min(speed + 1, 20);
+            }
+            if (key === '-') {
+                speed = max(speed - 1, 1);
+            }
+        }
+
+        function displayInfo() {
+            colorMode(RGB, 255);
+            fill(50, 200);
+            noStroke();
+            rect(10, 10, 200, 90);
+            
+            fill(255);
+            textSize(14);
+            text(`Steps: ${steps}`, 20, 30);
+            text(`Speed: ${speed}x`, 20, 50);
+            text(`Position: (${ant.x}, ${ant.y})`, 20, 70);
+            text(`Direction: ${getDirectionName()}`, 20, 90);
+        }
+
+        function getDirectionName() {
+            const directions = ['↑ Up', '→ Right', '↓ Down', '← Left'];
+            return directions[ant.dir];
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth * 0.7, windowHeight * 0.8);
+            cols = floor(width / cellSize);
+            rows = floor(height / cellSize);
+            
+            // Recreate grid
+            grid = [];
+            for (let i = 0; i < cols; i++) {
+                grid[i] = [];
+                for (let j = 0; j < rows; j++) {
+                    grid[i][j] = 0;
+                }
+            }
+            
+            // Reset ant position
+            ant.x = floor(cols / 2);
+            ant.y = floor(rows / 2);
+            ant.dir = 0;
+            steps = 0;
+        }
+
+        // UI Controls
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            for (let i = 0; i < cols; i++) {
+                for (let j = 0; j < rows; j++) {
+                    grid[i][j] = 0;
+                }
+            }
+            ant.x = floor(cols / 2);
+            ant.y = floor(rows / 2);
+            ant.dir = 0;
+            steps = 0;
+        });
+
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            isPaused = !isPaused;
+            document.getElementById('pauseBtn').textContent = isPaused ? 'Play' : 'Pause';
+        });
+    </script>
+</body>
+</html>

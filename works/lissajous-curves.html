@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lissajous Curves - ArTube</title>
+    <link rel="stylesheet" href="../styles/work.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+</head>
+<body>
+    <nav class="work-nav">
+        <a href="../index.html" class="back-btn">Back to Gallery</a>
+        <h1>Lissajous Curves</h1>
+        <div class="nav-controls">
+            <button id="resetBtn">Reset</button>
+            <button id="pauseBtn">Pause</button>
+        </div>
+    </nav>
+
+    <main class="work-container">
+        <div id="sketch-container"></div>
+        
+        <div class="work-info">
+            <div class="description">
+                <h2>About this work</h2>
+                <p>リサージュ曲線のアニメーション。異なる周波数比で美しい軌跡を描きます。マウスクリックで周波数比をランダムに変更、矢印キーで細かく調整できます。</p>
+            </div>
+            
+            <div class="controls">
+                <h3>Controls</h3>
+                <ul>
+                    <li><strong>Click:</strong> ランダム周波数</li>
+                    <li><strong>Arrow Keys:</strong> 周波数調整</li>
+                    <li><strong>Space:</strong> 位相シフト</li>
+                    <li><strong>R:</strong> リセット</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Lissajous Curves
+        let freqRatioX = 3;
+        let freqRatioY = 4;
+        let phaseShift = 0;
+        let trailPoints = [];
+        let maxTrailLength = 500;
+        let time = 0;
+        let isPaused = false;
+
+        function setup() {
+            const canvas = createCanvas(windowWidth * 0.7, windowHeight * 0.8);
+            canvas.parent('sketch-container');
+            colorMode(HSB, 360, 100, 100);
+        }
+
+        function draw() {
+            if (!isPaused) {
+                background(0, 10);
+                
+                time += 0.02;
+                
+                let centerX = width / 2;
+                let centerY = height / 2;
+                let amplitude = min(width, height) * 0.35;
+                
+                let x = centerX + amplitude * sin(freqRatioX * time + phaseShift);
+                let y = centerY + amplitude * sin(freqRatioY * time);
+                
+                trailPoints.push({x: x, y: y});
+                if (trailPoints.length > maxTrailLength) {
+                    trailPoints.shift();
+                }
+                
+                // Draw trail
+                noFill();
+                strokeWeight(2);
+                for (let i = 1; i < trailPoints.length; i++) {
+                    let alpha = map(i, 0, trailPoints.length - 1, 0, 100);
+                    let hue = map(i, 0, trailPoints.length - 1, 180, 300);
+                    stroke(hue, 80, 90, alpha);
+                    line(trailPoints[i-1].x, trailPoints[i-1].y, trailPoints[i].x, trailPoints[i].y);
+                }
+                
+                // Current point
+                fill(60, 100, 100);
+                noStroke();
+                ellipse(x, y, 12);
+                
+                // Glow effect
+                fill(60, 100, 100, 50);
+                ellipse(x, y, 24);
+                
+                // Projection lines
+                stroke(0, 0, 100, 30);
+                strokeWeight(1);
+                line(centerX, centerY, x, y);
+                
+                stroke(0, 100, 100, 50);
+                line(x, centerY, x, y);
+                stroke(120, 100, 100, 50);
+                line(centerX, y, x, y);
+                
+                displayInfo();
+            }
+        }
+
+        function mousePressed() {
+            freqRatioX = int(random(1, 8));
+            freqRatioY = int(random(1, 8));
+            trailPoints = [];
+        }
+
+        function keyPressed() {
+            if (key === 'r' || key === 'R') {
+                freqRatioX = 3;
+                freqRatioY = 4;
+                phaseShift = 0;
+                trailPoints = [];
+                time = 0;
+            }
+            if (key === ' ') {
+                phaseShift += PI / 4;
+                trailPoints = [];
+            }
+            if (keyCode === UP_ARROW) {
+                freqRatioY = min(freqRatioY + 1, 10);
+                trailPoints = [];
+            }
+            if (keyCode === DOWN_ARROW) {
+                freqRatioY = max(freqRatioY - 1, 1);
+                trailPoints = [];
+            }
+            if (keyCode === RIGHT_ARROW) {
+                freqRatioX = min(freqRatioX + 1, 10);
+                trailPoints = [];
+            }
+            if (keyCode === LEFT_ARROW) {
+                freqRatioX = max(freqRatioX - 1, 1);
+                trailPoints = [];
+            }
+        }
+
+        function displayInfo() {
+            colorMode(RGB, 255);
+            fill(255, 200);
+            textSize(16);
+            text(`Frequency Ratio X:Y = ${freqRatioX}:${freqRatioY}`, 20, 30);
+            text(`Phase: ${(phaseShift / PI * 180).toFixed(0)}°`, 20, 50);
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth * 0.7, windowHeight * 0.8);
+        }
+
+        // UI Controls
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            freqRatioX = 3;
+            freqRatioY = 4;
+            phaseShift = 0;
+            trailPoints = [];
+            time = 0;
+        });
+
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            isPaused = !isPaused;
+            document.getElementById('pauseBtn').textContent = isPaused ? 'Play' : 'Pause';
+        });
+    </script>
+</body>
+</html>

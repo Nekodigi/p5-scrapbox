@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recursive Trees - ArTube</title>
+    <link rel="stylesheet" href="../styles/work.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+</head>
+<body>
+    <nav class="work-nav">
+        <a href="../index.html" class="back-btn">Back to Gallery</a>
+        <h1>Recursive Trees</h1>
+        <div class="nav-controls">
+            <button id="resetBtn">Reset</button>
+            <button id="pauseBtn">Pause</button>
+        </div>
+    </nav>
+
+    <main class="work-container">
+        <div id="sketch-container"></div>
+        
+        <div class="work-info">
+            <div class="description">
+                <h2>About this work</h2>
+                <p>再帰的アルゴリズムで生成される美しい樹木。フラクタル構造による自然な分岐パターン。様々なスタイルと季節変化、風の効果でリアルな樹木を表現します。数学的美しさと自然の調和を体感できます。</p>
+            </div>
+            
+            <div class="controls">
+                <h3>Controls</h3>
+                <ul>
+                    <li><strong>1-6:</strong> 樹木スタイル切替</li>
+                    <li><strong>Q-Y:</strong> カラーモード切替</li>
+                    <li><strong>+/-:</strong> 最大深度調整</li>
+                    <li><strong>A/S:</strong> 分岐角度調整</li>
+                    <li><strong>Z/X:</strong> 長さ比率調整</li>
+                    <li><strong>L:</strong> 葉っぱ表示切替</li>
+                    <li><strong>W:</strong> 風アニメーション</li>
+                    <li><strong>G:</strong> 成長アニメーション</li>
+                    <li><strong>N:</strong> 季節変化モード</li>
+                    <li><strong>スペース:</strong> 再生成</li>
+                    <li><strong>マウスクリック:</strong> 新しい木追加</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let isPaused = false;
+        
+        function setup() {
+            const canvas = createCanvas(windowWidth * 0.7, windowHeight * 0.8);
+            canvas.parent('sketch-container');
+            
+            // 外部スクリプトをロード
+            const script = document.createElement('script');
+            script.src = '../scripts/sketches/generative/recursive-trees.js';
+            document.head.appendChild(script);
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth * 0.7, windowHeight * 0.8);
+        }
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            if (typeof generateTrees !== 'undefined') {
+                generateTrees();
+            }
+        });
+
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            isPaused = !isPaused;
+            if (isPaused) {
+                noLoop();
+            } else {
+                loop();
+            }
+            document.getElementById('pauseBtn').textContent = isPaused ? 'Play' : 'Pause';
+        });
+    </script>
+</body>
+</html>

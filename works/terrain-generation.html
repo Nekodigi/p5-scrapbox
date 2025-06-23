@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terrain Generation - ArTube</title>
+    <link rel="stylesheet" href="../styles/work.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+</head>
+<body>
+    <nav class="work-nav">
+        <a href="../index.html" class="back-btn">Back to Gallery</a>
+        <h1>Terrain Generation</h1>
+        <div class="nav-controls">
+            <button id="resetBtn">Reset</button>
+            <button id="animateBtn">▶️ Animate</button>
+        </div>
+    </nav>
+
+    <main class="work-container">
+        <div id="sketch-container"></div>
+        
+        <div class="work-info">
+            <div class="description">
+                <h2>About this work</h2>
+                <p>プロシージャル地形生成アルゴリズムによる3D地形の可視化。複数のノイズオクターブを組み合わせて、自然な起伏を持つ地形を生成します。</p>
+                <p>高さに基づく自動カラーリングにより、水面、砂浜、草原、山岳地帯を視覚的に区別できます。</p>
+            </div>
+            
+            <div class="controls">
+                <h3>Controls</h3>
+                <ul>
+                    <li><strong>マウスX:</strong> 地形のズーム（0.5x～2.0x）</li>
+                    <li><strong>マウスY:</strong> 視点角度の調整</li>
+                    <li><strong>W:</strong> ワイヤーフレーム表示切替</li>
+                    <li><strong>C:</strong> カラーモードを変更</li>
+                    <li><strong>A:</strong> アニメーションのON/OFF</li>
+                    <li><strong>R:</strong> 地形をリセット</li>
+                    <li><strong>スペース:</strong> 回転のON/OFF</li>
+                    <li><strong>クリック:</strong> 新しい地形を生成</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let terrain3d;
+
+        function setup() {
+            const canvas = createCanvas(windowWidth * 0.7, windowHeight * 0.8, WEBGL);
+            canvas.parent('sketch-container');
+            
+            const script = document.createElement('script');
+            script.src = '../scripts/sketches/3d/terrain-generation.js';
+            script.onload = function() {
+                terrain3d = new Terrain3D();
+            };
+            document.head.appendChild(script);
+        }
+
+        function draw() {
+            background(135, 206, 235); // Sky blue background
+            
+            // より強いライティング効果
+            ambientLight(80, 80, 90);
+            directionalLight(255, 248, 220, -0.5, 0.5, -1); // 太陽光
+            directionalLight(100, 100, 150, 0.5, -0.2, -0.5); // 空からの反射光
+            pointLight(255, 200, 100, 0, -200, 200); // 追加の暖色光源
+            
+            // 回転削除 - 固定視点
+            
+            if (terrain3d) {
+                terrain3d.update();
+                terrain3d.draw();
+                terrain3d.drawInfo(); // ズーム情報の表示
+            }
+        }
+
+        function keyPressed() {
+            if (terrain3d) {
+                terrain3d.keyPressed();
+            }
+            // スペースキーの自動回転機能削除
+        }
+        
+        function mousePressed() {
+            if (terrain3d) {
+                terrain3d.mousePressed();
+            }
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth * 0.7, windowHeight * 0.8);
+        }
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            if (terrain3d) {
+                terrain3d.flying = 0;
+                terrain3d.generateTerrain();
+            }
+        });
+
+        document.getElementById('animateBtn').addEventListener('click', () => {
+            if (terrain3d) {
+                terrain3d.animate = !terrain3d.animate;
+                document.getElementById('animateBtn').textContent = terrain3d.animate ? 'Pause' : '▶️ Animate';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sphere Morphing - ArTube</title>
+    <link rel="stylesheet" href="../styles/work.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <script src="../scripts/sketches/3d/sphere-morphing.js"></script>
+</head>
+<body>
+    <nav class="work-nav">
+        <a href="../index.html" class="back-btn">Back to Gallery</a>
+        <h1>Sphere Morphing</h1>
+        <div class="nav-controls">
+            <button id="resetBtn">Reset</button>
+            <button id="wireframeBtn">🔲 Wireframe</button>
+        </div>
+    </nav>
+
+    <main class="work-container">
+        <div id="sketch-container"></div>
+        
+        <div class="work-info">
+            <div class="description">
+                <h2>About this work</h2>
+                <p>3D球体がリアルタイムでノイズにより変形するアニメーション。Perlinノイズの複数層により、滑らかで有機的な変形パターンを生成します。</p>
+                <p>適切なシェーディングと複数の光源により、立体感のある美しいレンダリングを実現。マウスで自由に視点を操作できます。</p>
+            </div>
+            
+            <div class="controls">
+                <h3>Controls</h3>
+                <ul>
+                    <li><strong>マウスドラッグ:</strong> カメラを回転</li>
+                    <li><strong>スクロール:</strong> ズームイン/アウト</li>
+                    <li><strong>W:</strong> ワイヤーフレーム表示切替</li>
+                    <li><strong>C:</strong> カラーモードを変更</li>
+                    <li><strong>R:</strong> 自動回転のON/OFF</li>
+                    <li><strong>Q/E:</strong> 変形強度を調整</li>
+                    <li><strong>Space:</strong> ビューをリセット</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Event listeners for buttons
+        window.addEventListener('load', () => {
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                if (typeof morphingSphere !== 'undefined' && morphingSphere) {
+                    morphingSphere.resetCamera();
+                    morphingSphere.time = 0;
+                    morphingSphere.generateSphere();
+                }
+            });
+
+            document.getElementById('wireframeBtn').addEventListener('click', () => {
+                if (typeof morphingSphere !== 'undefined' && morphingSphere) {
+                    morphingSphere.wireframe = !morphingSphere.wireframe;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

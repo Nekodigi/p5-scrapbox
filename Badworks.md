@@ -1,0 +1,10 @@
+- Magnetic field : 磁力線は画面全体に描画されるべき & 右クリックでも N 極しか置けない
+- Mandelbrot Exploler : そもそも上のごく一部描画されてない : シェーダーを使ってもいいですよ
+- Julia set exploler : 上記と同様
+  -Cymatics Simulation : なにも表示されていない
+- -Elementary CA : 画面ひらいたときと、マウスクリックで描画開始すべき。もしかしたら 1 つめのルールが壊れているかも
+- Cloth Simulation : Space を押してリセットはいいけど、ロード時にもリセットすべき　＆　バグってる
+- Fluid Dynamics : 何も見えない。いつもの Stable Diffusion じゃない
+  -Spring Network : トリガーはクリックの方がいい
+- Generative Landscapes : 何も表示できない -　 Noise Paintings : 何か単色のものが表示されているが、変化しない
+- 3D Particle 以降 : そもそも全く実装されていない

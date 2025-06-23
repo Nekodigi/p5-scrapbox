@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cymatics Simulation - ArTube</title>
+    <link rel="stylesheet" href="../styles/work.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+</head>
+<body>
+    <nav class="work-nav">
+        <a href="../index.html" class="back-btn">Back to Gallery</a>
+        <h1>Cymatics Simulation</h1>
+        <div class="nav-controls">
+            <button id="resetBtn">Reset</button>
+            <button id="displayBtn">📊 Display</button>
+            <button id="colorBtn">🎨 Color</button>
+        </div>
+    </nav>
+
+    <main class="work-container">
+        <div id="sketch-container"></div>
+        
+        <div class="work-info">
+            <div class="description">
+                <h2>About this work</h2>
+                <p>Cymatics（音響学的波動現象）のシミュレーション。複数の音源から生成される波の干渉パターンを可視化します。</p>
+                <p>実際のCymaticsでは、振動する表面上の粒子が音波によって美しい幾何学模様を形成します。</p>
+                <p>このシミュレーションでは、3D表示、2D俯瞰表示、高さマップの3つのモードで波の干渉を観察できます。</p>
+            </div>
+            
+            <div class="controls">
+                <h3>Controls</h3>
+                <ul>
+                    <li><strong>D:</strong> 表示モード切替 (3D/2D俯瞰/高さマップ)</li>
+                    <li><strong>C:</strong> カラーモード切替</li>
+                    <li><strong>クリック/ドラッグ:</strong> 音源を追加</li>
+                    <li><strong>F/V:</strong> 周波数を上げる/下げる</li>
+                    <li><strong>A/Z:</strong> 振幅を上げる/下げる</li>
+                    <li><strong>スペース:</strong> 音源をクリア</li>
+                    <li><strong>R:</strong> リセット</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let cymatics;
+
+        function setup() {
+            const canvas = createCanvas(windowWidth * 0.7, windowHeight * 0.8, WEBGL);
+            canvas.parent('sketch-container');
+            
+            // 外部スクリプトをロード
+            const script = document.createElement('script');
+            script.src = '../scripts/sketches/waves/cymatics-simulation.js';
+            script.onload = function() {
+                cymatics = new CymaticsSimulation();
+                cymatics.init();
+            };
+            document.head.appendChild(script);
+        }
+
+        function draw() {
+            if (cymatics) {
+                cymatics.update();
+                cymatics.draw();
+            }
+        }
+
+        function mousePressed() {
+            if (cymatics) {
+                cymatics.mousePressed();
+            }
+        }
+        
+        function mouseDragged() {
+            if (cymatics) {
+                cymatics.mouseDragged();
+            }
+        }
+
+        function keyPressed() {
+            if (cymatics) {
+                cymatics.keyPressed();
+            }
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth * 0.7, windowHeight * 0.8);
+        }
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            if (cymatics) {
+                cymatics.init();
+            }
+        });
+
+        document.getElementById('displayBtn').addEventListener('click', () => {
+            if (cymatics) {
+                cymatics.displayMode = (cymatics.displayMode + 1) % 3;
+            }
+        });
+
+        document.getElementById('colorBtn').addEventListener('click', () => {
+            if (cymatics) {
+                cymatics.colorMode = (cymatics.colorMode + 1) % 3;
+            }
+        });
+    </script>
+</body>
+</html>

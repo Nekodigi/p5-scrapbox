@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics Sandbox - ArTube</title>
+    <link rel="stylesheet" href="../styles/work.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+</head>
+<body>
+    <nav class="work-nav">
+        <a href="../index.html" class="back-btn">Back to Gallery</a>
+        <h1>Physics Sandbox</h1>
+        <div class="nav-controls">
+            <button id="resetBtn">Reset</button>
+            <button id="pauseBtn">Pause</button>
+        </div>
+    </nav>
+
+    <main class="work-container">
+        <div id="sketch-container"></div>
+        
+        <div class="work-info">
+            <div class="description">
+                <h2>About this work</h2>
+                <p>物理シミュレーションサンドボックス。円形オブジェクトを作成し、重力、衝突、制約などの物理法則を体験できます。直感的な操作で物理の美しさを探求してください。</p>
+            </div>
+            
+            <div class="controls">
+                <h3>Controls</h3>
+                <ul>
+                    <li><strong>1:</strong> Circle tool</li>
+                    <li><strong>2:</strong> Pin tool</li>
+                    <li><strong>3:</strong> Delete tool</li>
+                    <li><strong>Q/W:</strong> Gravity adjustment</li>
+                    <li><strong>E/R:</strong> Time scale</li>
+                    <li><strong>T:</strong> Toggle trails</li>
+                    <li><strong>F:</strong> Toggle forces</li>
+                    <li><strong>C:</strong> Toggle constraints</li>
+                    <li><strong>P:</strong> Random preset</li>
+                    <li><strong>Space:</strong> Reset velocities</li>
+                    <li><strong>Delete:</strong> Clear all</li>
+                </ul>
+                
+                <div class="status">
+                    <h4>Status</h4>
+                    <div id="status-info">
+                        <div>Tool: <span id="current-tool">circle</span></div>
+                        <div>Objects: <span id="object-count">0</span></div>
+                        <div>Constraints: <span id="constraint-count">0</span></div>
+                        <div>Gravity: <span id="gravity-value">0.5</span></div>
+                        <div>Time Scale: <span id="time-scale">1.0</span></div>
+                        <div>Trails: <span id="trails-status">OFF</span></div>
+                        <div>Forces: <span id="forces-status">OFF</span></div>
+                    </div>
+                </div>
+
+                <div class="interaction">
+                    <h4>Interaction</h4>
+                    <ul>
+                        <li><strong>Mouse:</strong> Create/Select/Drag</li>
+                        <li><strong>Right click:</strong> Pin object</li>
+                        <li><strong>Shift+Drag:</strong> Apply force</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let isPaused = false;
+        let physicsSketch;
+        
+        function setup() {
+            const canvas = createCanvas(windowWidth * 0.7, windowHeight * 0.8);
+            canvas.parent('sketch-container');
+            
+            // 外部スクリプトをロード
+            const script = document.createElement('script');
+            script.src = '../scripts/sketches/interactive/physics-sandbox.js';
+            script.onload = function() {
+                // スクリプトロード後に物理シミュレーションを初期化
+                initializePhysics();
+            };
+            document.head.appendChild(script);
+            
+            // ステータス更新を開始
+            setInterval(updateStatus, 100);
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth * 0.7, windowHeight * 0.8);
+        }
+
+        function updateStatus() {
+            if (typeof objects !== 'undefined') {
+                document.getElementById('current-tool').textContent = tool || 'circle';
+                document.getElementById('object-count').textContent = objects.length || 0;
+                document.getElementById('constraint-count').textContent = (constraints && constraints.length) || 0;
+                document.getElementById('gravity-value').textContent = (gravity && gravity.y.toFixed(1)) || '0.5';
+                document.getElementById('time-scale').textContent = (settings && settings.timeScale.toFixed(1)) || '1.0';
+                document.getElementById('trails-status').textContent = (settings && settings.showTrails) ? 'ON' : 'OFF';
+                document.getElementById('forces-status').textContent = (settings && settings.showForces) ? 'ON' : 'OFF';
+            }
+        }
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            if (typeof clearAll !== 'undefined') {
+                clearAll();
+                createPreset('tower');
+            }
+        });
+
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            isPaused = !isPaused;
+            if (isPaused) {
+                noLoop();
+            } else {
+                loop();
+            }
+            document.getElementById('pauseBtn').textContent = isPaused ? 'Play' : 'Pause';
+        });
+    </script>
+</body>
+</html>

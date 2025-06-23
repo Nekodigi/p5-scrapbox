@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abstract Compositions - ArTube</title>
+    <link rel="stylesheet" href="../styles/work.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+</head>
+<body>
+    <nav class="work-nav">
+        <a href="../index.html" class="back-btn">Back to Gallery</a>
+        <h1>Abstract Compositions</h1>
+        <div class="nav-controls">
+            <button id="resetBtn">Reset</button>
+            <button id="pauseBtn">Pause</button>
+        </div>
+    </nav>
+
+    <main class="work-container">
+        <div id="sketch-container"></div>
+        
+        <div class="work-info">
+            <div class="description">
+                <h2>About this work</h2>
+                <p>動的な抽象コンポジション。幾何学、有機的、線形など様々なスタイルの図形が複雑に動き合います。対称性、軌跡、色彩変化により、見るたびに新しい美しさを発見できる作品です。</p>
+            </div>
+            
+            <div class="controls">
+                <h3>Controls</h3>
+                <ul>
+                    <li><strong>1-4:</strong> コンポジションスタイル</li>
+                    <li><strong>Q-U:</strong> カラーパレット切替</li>
+                    <li><strong>+/-:</strong> 図形数調整</li>
+                    <li><strong>T:</strong> 軌跡表示切替</li>
+                    <li><strong>S:</strong> 対称モード切替</li>
+                    <li><strong>上下矢印:</strong> アニメーション速度</li>
+                    <li><strong>F:</strong> アニメーション停止/再開</li>
+                    <li><strong>スペース:</strong> 再生成</li>
+                    <li><strong>R:</strong> 位置リセット</li>
+                    <li><strong>マウスクリック:</strong> 図形追加</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let isPaused = false;
+        
+        function setup() {
+            const canvas = createCanvas(windowWidth * 0.7, windowHeight * 0.8);
+            canvas.parent('sketch-container');
+            
+            // 外部スクリプトをロード
+            const script = document.createElement('script');
+            script.src = '../scripts/sketches/generative/abstract-compositions.js';
+            document.head.appendChild(script);
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth * 0.7, windowHeight * 0.8);
+        }
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            if (typeof generateComposition !== 'undefined') {
+                generateComposition();
+            }
+        });
+
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            isPaused = !isPaused;
+            if (isPaused) {
+                noLoop();
+            } else {
+                loop();
+            }
+            document.getElementById('pauseBtn').textContent = isPaused ? 'Play' : 'Pause';
+        });
+    </script>
+</body>
+</html>

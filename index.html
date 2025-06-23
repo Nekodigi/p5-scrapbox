@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>p5-scrapbox - Generative Algorithm Gallery</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/enhancements.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+</head>
+<body>
+    <div id="p5-background"></div>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <h1><span class="brand-accent">p5</span>-scrapbox</h1>
+        </div>
+        <ul class="nav-menu">
+            <li><a href="#home" class="nav-link">Home</a></li>
+            <li><a href="#gallery" class="nav-link">Gallery</a></li>
+            <li><a href="#about" class="nav-link">About</a></li>
+            <li><a href="#contact" class="nav-link">Contact</a></li>
+        </ul>
+        <div class="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+
+    <main>
+        <section id="home" class="hero">
+            <div class="hero-content">
+                <h1 class="hero-title">Generative Art Gallery</h1>
+                <p class="hero-subtitle">Explore the beauty of algorithmic creativity and interactive visualizations</p>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">50+</span>
+                        <span class="stat-label">Artworks</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">9</span>
+                        <span class="stat-label">Categories</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">∞</span>
+                        <span class="stat-label">Possibilities</span>
+                    </div>
+                </div>
+                <a href="#gallery" class="cta-button">Explore Artworks</a>
+            </div>
+        </section>
+
+        <section id="gallery" class="gallery-section">
+            <div class="container">
+                <h2 class="section-title">Featured Artworks</h2>
+                
+                <div class="gallery-controls">
+                    <div class="search-bar">
+                        <input type="text" id="searchInput" placeholder="Search artworks...">
+                        <button id="searchBtn">🔍</button>
+                    </div>
+                    <div class="filter-controls">
+                        <button id="favoriteToggle" class="filter-btn">⭐ Favorites</button>
+                        <select id="categoryFilter" class="category-select">
+                            <option value="all">All Categories</option>
+                            <option value="particles">Particles</option>
+                            <option value="fractals">Fractals</option>
+                            <option value="waves">Waves & Audio</option>
+                            <option value="cellular">Cellular</option>
+                            <option value="physics">Physics</option>
+                            <option value="generative">Generative</option>
+                            <option value="3d">3D</option>
+                            <option value="interactive">Interactive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="galleryGrid" class="gallery-grid">
+                    <!-- 作品カードがここに動的に生成される -->
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="about">
+            <div class="container">
+                <h2 class="section-title">About p5-scrapbox</h2>
+                <div class="about-content">
+                    <div class="about-text">
+                        <p>p5-scrapboxは生成アルゴリズムの美しさを探求するインタラクティブなギャラリーです。数学とアートの交差点で生まれる作品を通じて、アルゴリズムの創造性を体験できます。</p>
+                        <p>パーティクルシステム、フラクタル、セルオートマトン、物理シミュレーションなど、様々な分野の可視化作品をお楽しみください。</p>
+                    </div>
+                    <div class="features">
+                        <h3>Features</h3>
+                        <div class="feature-tags">
+                            <span class="tag">Interactive</span>
+                            <span class="tag">Real-time</span>
+                            <span class="tag">p5.js</span>
+                            <span class="tag">Generative</span>
+                            <span class="tag">Mathematics</span>
+                            <span class="tag">Visualization</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="contact">
+            <div class="container">
+                <h2 class="section-title">Get In Touch</h2>
+                <div class="contact-content">
+                    <p>Interested in generative art or have questions about the algorithms?</p>
+                    <div class="contact-links">
+                        <a href="https://github.com/Nekodigi/p5-scrapbox.git" class="contact-link">GitHub</a>
+                        <a href="https://www.youtube.com/@Nekodigi" class="contact-link">YouTube</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- フルスクリーン表示用 -->
+    <div id="fullscreenModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">作品タイトル</h2>
+                <div class="modal-controls">
+                    <button id="favoriteBtn">♡</button>
+                    <button id="resetBtn">🔄</button>
+                    <button id="pauseBtn">⏸️</button>
+                    <button id="closeBtn">✕</button>
+                </div>
+            </div>
+            <div id="sketchContainer"></div>
+            <div class="modal-info">
+                <p id="sketchDescription">作品の説明がここに表示されます</p>
+                <div id="controlPanel" class="controls">
+                    <!-- インタラクティブコントロールがここに動的に生成される -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 p5-scrapbox - Generative Algorithm Visualization Gallery</p>
+            <div class="footer-info">
+                <span>作品数: <span id="totalWorks">0</span></span>
+                <span>お気に入り: <span id="favoriteCount">0</span></span>
+            </div>
+        </div>
+    </footer>
+
+    <script src="scripts/p5-background.js"></script>
+    <script src="scripts/gallery.js"></script>
+    <script src="scripts/app.js"></script>
+</body>
+</html>
