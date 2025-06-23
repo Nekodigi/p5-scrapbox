@@ -4,10 +4,77 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>p5-scrapbox - Generative Algorithm Gallery</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="icon" type="image/png" href="favicon.png">
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Interactive gallery of generative algorithms and mathematical visualizations. Explore fractals, particle systems, cellular automata, and physics simulations built with p5.js.">
+    <meta name="keywords" content="generative art, p5.js, algorithms, fractals, particle systems, visualization, interactive, mathematics, creative coding">
+    <meta name="author" content="Nekodigi">
+    
+    <!-- Open Graph Meta Tags for Social Media -->
+    <meta property="og:title" content="p5-scrapbox - Generative Algorithm Gallery">
+    <meta property="og:description" content="Interactive gallery of generative algorithms and mathematical visualizations. Explore fractals, particle systems, cellular automata, and physics simulations.">
+    <meta property="og:image" content="https://nekodigi.github.io/p5-scrapbox/assets/og-image.svg">
+    <meta property="og:image:alt" content="p5-scrapbox - Interactive generative algorithm gallery with beautiful mathematical visualizations">
+    <meta property="og:url" content="https://nekodigi.github.io/p5-scrapbox/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="p5-scrapbox">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="p5-scrapbox - Generative Algorithm Gallery">
+    <meta name="twitter:description" content="Interactive gallery of generative algorithms and mathematical visualizations built with p5.js">
+    <meta name="twitter:image" content="https://nekodigi.github.io/p5-scrapbox/assets/og-image.svg">
+    <meta name="twitter:image:alt" content="p5-scrapbox gallery preview">
+    
+    <!-- Additional Meta Tags -->
+    <meta name="theme-color" content="#4ecdc4">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://nekodigi.github.io/p5-scrapbox/">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/enhancements.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "p5-scrapbox",
+      "description": "Interactive gallery of generative algorithms and mathematical visualizations",
+      "url": "https://nekodigi.github.io/p5-scrapbox/",
+      "author": {
+        "@type": "Person",
+        "name": "Nekodigi",
+        "url": "https://github.com/Nekodigi"
+      },
+      "publisher": {
+        "@type": "Person",
+        "name": "Nekodigi"
+      },
+      "mainEntity": {
+        "@type": "CreativeWork",
+        "name": "Generative Algorithm Gallery",
+        "description": "Collection of interactive visualizations including fractals, particle systems, cellular automata, and physics simulations",
+        "genre": ["Educational", "Interactive Art", "Data Visualization"],
+        "programmingLanguage": "JavaScript",
+        "runtimePlatform": "Web Browser",
+        "applicationCategory": "Educational Software"
+      },
+      "potentialAction": {
+        "@type": "ViewAction",
+        "target": "https://nekodigi.github.io/p5-scrapbox/"
+      }
+    }
+    </script>
 </head>
 <body>
     <div id="p5-background"></div>
@@ -19,6 +86,7 @@
             <li><a href="#home" class="nav-link">Home</a></li>
             <li><a href="#gallery" class="nav-link">Gallery</a></li>
             <li><a href="#about" class="nav-link">About</a></li>
+            <li><a href="https://github.com/Nekodigi/p5-scrapbox" class="nav-link github-link" target="_blank">📋 Source Code</a></li>
             <li><a href="#contact" class="nav-link">Contact</a></li>
         </ul>
         <div class="hamburger">
@@ -47,7 +115,12 @@
                         <span class="stat-label">Possibilities</span>
                     </div>
                 </div>
-                <a href="#gallery" class="cta-button">Explore Artworks</a>
+                <div class="hero-buttons">
+                    <a href="#gallery" class="cta-button">Explore Artworks</a>
+                    <a href="https://github.com/Nekodigi/p5-scrapbox" class="cta-button secondary" target="_blank">
+                        <span>🔗 View Source</span>
+                    </a>
+                </div>
             </div>
         </section>
 
@@ -89,6 +162,13 @@
                     <div class="about-text">
                         <p>p5-scrapboxは生成アルゴリズムの美しさを探求するインタラクティブなギャラリーです。数学とアートの交差点で生まれる作品を通じて、アルゴリズムの創造性を体験できます。</p>
                         <p>パーティクルシステム、フラクタル、セルオートマトン、物理シミュレーションなど、様々な分野の可視化作品をお楽しみください。</p>
+                        <div class="developer-section">
+                            <h4>🧑‍💻 For Developers</h4>
+                            <p>全てのソースコードはGitHubで公開されています。各アルゴリズムの実装を参考にして、独自の生成アートを作成してください。</p>
+                            <a href="https://github.com/Nekodigi/p5-scrapbox" class="github-button" target="_blank">
+                                <span>📋 Browse Source Code</span>
+                            </a>
+                        </div>
                     </div>
                     <div class="features">
                         <h3>Features</h3>

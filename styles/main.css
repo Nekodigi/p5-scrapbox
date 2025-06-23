@@ -875,3 +875,108 @@ footer {
         margin: 0 0.5rem;
     }
 }
+
+/* GitHub and Source Code Styles */
+.github-link {
+    background: linear-gradient(135deg, #333, #555) !important;
+    color: white !important;
+    border-radius: 6px !important;
+    padding: 0.5rem 1rem !important;
+    transition: all 0.3s ease !important;
+}
+
+.github-link:hover {
+    background: linear-gradient(135deg, #555, #777) !important;
+    transform: translateY(-2px) !important;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.cta-button.secondary {
+    background: linear-gradient(135deg, #333, #555);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.cta-button.secondary:hover {
+    background: linear-gradient(135deg, #555, #777);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.developer-section {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.developer-section h4 {
+    color: var(--color-primary);
+    margin-bottom: 1rem;
+    font-weight: var(--font-weight-semibold);
+}
+
+.github-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #333, #555);
+    color: white;
+    text-decoration: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: var(--font-weight-medium);
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+}
+
+.github-button:hover {
+    background: linear-gradient(135deg, #555, #777);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.source-code-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-tertiary));
+    color: white;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    transition: all 0.3s ease;
+    margin-bottom: 1rem;
+}
+
+.source-code-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+}
+
+.source-code-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-tertiary));
+    color: white;
+    text-decoration: none;
+    border-radius: 50%;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+    margin-right: 0.5rem;
+}
+
+.source-code-btn:hover {
+    transform: translateY(-2px) scale(1.1);
+    box-shadow: 0 4px 12px rgba(78, 205, 196, 0.4);
+}

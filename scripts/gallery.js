@@ -101,14 +101,6 @@ class ArTubeGallery {
 
             // 波形・音響可視化 (5作品)
             {
-                id: 'audio-spectrum',
-                title: 'Audio Spectrum',
-                category: 'waves',
-                description: 'マイク入力の周波数解析表示。音楽を視覚的に楽しめます。',
-                file: 'waves/audio-spectrum.js',
-                controls: []
-            },
-            {
                 id: 'wave-interference',
                 title: 'Wave Interference',
                 category: 'waves',
@@ -327,14 +319,6 @@ class ArTubeGallery {
                 controls: []
             },
             {
-                id: 'rhythm-visualizer',
-                title: 'Rhythm Visualizer',
-                category: 'interactive',
-                description: 'リズムゲーム風ビジュアライザ。音楽に合わせて美しい映像を生成。',
-                file: 'interactive/rhythm-visualizer.js',
-                controls: []
-            },
-            {
                 id: 'maze-generator',
                 title: 'Maze Generator',
                 category: 'interactive',
@@ -446,6 +430,11 @@ class ArTubeGallery {
                 <p class="work-description">${work.description}</p>
                 <div class="work-meta">
                     <span class="interactive-badge">Interactive</span>
+                    <a href="https://github.com/Nekodigi/p5-scrapbox/blob/main/scripts/sketches/${work.file}" 
+                       class="source-code-btn" target="_blank" title="View Source Code"
+                       onclick="event.stopPropagation();">
+                        📋
+                    </a>
                     <button class="favorite-btn ${isFavorite ? 'active' : ''}" onclick="event.stopPropagation(); window.gallery.toggleFavoriteCard('${work.id}')">
                         ${isFavorite ? '♥' : '♡'}
                     </button>
@@ -559,9 +548,6 @@ class ArTubeGallery {
                 break;
 
             // 波形・音響
-            case 'audio-spectrum':
-                this.drawAudioSpectrumThumbnail(ctx, width, height);
-                break;
             case 'wave-interference':
                 this.drawWaveInterferenceThumbnail(ctx, width, height);
                 break;
@@ -652,9 +638,6 @@ class ArTubeGallery {
                 break;
             case 'pattern-memory':
                 this.drawPatternMemoryThumbnail(ctx, width, height);
-                break;
-            case 'rhythm-visualizer':
-                this.drawRhythmVisualizerThumbnail(ctx, width, height);
                 break;
             case 'maze-generator':
                 this.drawMazeGeneratorThumbnail(ctx, width, height);

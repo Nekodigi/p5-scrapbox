@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Favicon Generator</title>
+</head>
+<body>
+    <canvas id="favicon" width="32" height="32" style="border: 1px solid #ccc; image-rendering: pixelated; width: 320px; height: 320px;"></canvas>
+    <br><br>
+    <button onclick="downloadFavicon()">Download PNG Favicon</button>
+    
+    <script>
+        const canvas = document.getElementById('favicon');
+        const ctx = canvas.getContext('2d');
+        
+        // Draw favicon
+        function drawFavicon() {
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, 32, 32);
+            gradient.addColorStop(0, '#4ecdc4');
+            gradient.addColorStop(1, '#45b7d1');
+            
+            // Background circle
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(16, 16, 15, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // White border
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            
+            // p5 text
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 8px monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText('p5', 16, 12);
+            
+            // Horizontal line
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(6, 15, 20, 2);
+            
+            // Three dots
+            ctx.beginPath();
+            ctx.arc(8, 22, 2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.arc(16, 22, 2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.arc(24, 22, 2, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        function downloadFavicon() {
+            const link = document.createElement('a');
+            link.download = 'favicon.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        drawFavicon();
+    </script>
+</body>
+</html>

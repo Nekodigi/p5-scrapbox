@@ -1,0 +1,37 @@
+{
+  "name": "p5-scrapbox - Generative Algorithm Gallery",
+  "short_name": "p5-scrapbox",
+  "description": "Interactive gallery of generative algorithms and mathematical visualizations",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#4ecdc4",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["education", "entertainment", "developer tools"],
+  "lang": "en",
+  "scope": "/",
+  "related_applications": [
+    {
+      "platform": "web",
+      "url": "https://nekodigi.github.io/p5-scrapbox/"
+    }
+  ]
+}

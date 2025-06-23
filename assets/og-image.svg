@@ -1,0 +1,99 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#000000;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#1a1a2e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#16213e;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="titleGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#4ecdc4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#45b7d1;stop-opacity:1" />
+    </linearGradient>
+    
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGradient)"/>
+  
+  <!-- Animated particles background -->
+  <circle cx="100" cy="100" r="3" fill="#4ecdc4" opacity="0.6">
+    <animate attributeName="cy" values="100;150;100" dur="3s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="200" cy="200" r="2" fill="#ff6b6b" opacity="0.5">
+    <animate attributeName="cx" values="200;250;200" dur="4s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="1000" cy="150" r="4" fill="#96ceb4" opacity="0.7">
+    <animate attributeName="r" values="4;6;4" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="1100" cy="400" r="3" fill="#45b7d1" opacity="0.6">
+    <animate attributeName="cy" values="400;350;400" dur="5s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Fractal-like pattern -->
+  <g stroke="#4ecdc4" stroke-width="1" fill="none" opacity="0.3">
+    <polygon points="50,500 100,450 150,500 125,550 75,550"/>
+    <polygon points="70,480 90,470 110,480 105,495 85,495"/>
+    <polygon points="1050,100 1100,50 1150,100 1125,150 1075,150"/>
+    <polygon points="1070,80 1090,70 1110,80 1105,95 1085,95"/>
+  </g>
+  
+  <!-- Main title -->
+  <text x="600" y="220" font-family="Inter, sans-serif" font-size="72" font-weight="700" 
+        text-anchor="middle" fill="url(#titleGradient)" filter="url(#glow)">
+    p5-scrapbox
+  </text>
+  
+  <!-- Subtitle -->
+  <text x="600" y="280" font-family="Inter, sans-serif" font-size="32" font-weight="400" 
+        text-anchor="middle" fill="#ffffff" opacity="0.9">
+    Generative Algorithm Gallery
+  </text>
+  
+  <!-- Description -->
+  <text x="600" y="340" font-family="Inter, sans-serif" font-size="20" font-weight="300" 
+        text-anchor="middle" fill="#ffffff" opacity="0.7">
+    Interactive visualizations of mathematical beauty
+  </text>
+  
+  <!-- Features badges -->
+  <g transform="translate(450, 400)">
+    <rect x="0" y="0" width="80" height="30" rx="15" fill="#4ecdc4" opacity="0.8"/>
+    <text x="40" y="20" font-family="Inter, sans-serif" font-size="12" font-weight="500" 
+          text-anchor="middle" fill="#000">p5.js</text>
+  </g>
+  
+  <g transform="translate(540, 400)">
+    <rect x="0" y="0" width="100" height="30" rx="15" fill="#ff6b6b" opacity="0.8"/>
+    <text x="50" y="20" font-family="Inter, sans-serif" font-size="12" font-weight="500" 
+          text-anchor="middle" fill="#fff">Interactive</text>
+  </g>
+  
+  <g transform="translate(650, 400)">
+    <rect x="0" y="0" width="100" height="30" rx="15" fill="#96ceb4" opacity="0.8"/>
+    <text x="50" y="20" font-family="Inter, sans-serif" font-size="12" font-weight="500" 
+          text-anchor="middle" fill="#000">Real-time</text>
+  </g>
+  
+  <!-- GitHub link -->
+  <text x="600" y="520" font-family="Inter, sans-serif" font-size="18" font-weight="400" 
+        text-anchor="middle" fill="#4ecdc4" opacity="0.8">
+    github.com/Nekodigi/p5-scrapbox
+  </text>
+  
+  <!-- Code icon -->
+  <g transform="translate(550, 500)">
+    <rect x="0" y="0" width="16" height="12" rx="2" fill="none" stroke="#4ecdc4" stroke-width="1"/>
+    <line x1="4" y1="3" x2="6" y2="5" stroke="#4ecdc4" stroke-width="1"/>
+    <line x1="6" y1="5" x2="4" y2="7" stroke="#4ecdc4" stroke-width="1"/>
+    <line x1="10" y1="3" x2="12" y2="5" stroke="#4ecdc4" stroke-width="1"/>
+    <line x1="12" y1="5" x2="10" y2="7" stroke="#4ecdc4" stroke-width="1"/>
+  </g>
+</svg>
